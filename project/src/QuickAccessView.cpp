@@ -1,6 +1,7 @@
 #include "QuickAccessView.h"
 #include <sstream>
 #include <stack>
+#include <cstring>
 
 std::string QuickAccessView::path_length_constraints(const std::string& path, const std::size_t width) {
     if (path.size() < width) {
@@ -47,8 +48,8 @@ std::string QuickAccessView::get_header_or_footer(const char* text, const std::s
 void QuickAccessView::render_window(std::vector<std::string> paths_list, std::size_t pos)  {
     std::vector<std::string> contents_to_display;
     auto [width_, height_] = UI::get_terminal_size();
-    std::size_t width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, std::min<std::size_t>(width_, MAX_TERMINAL_WIDTH));
-    std::size_t height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT,  std::min<std::size_t>(height_, MAX_TERMINAL_HEIGHT));
+    std::size_t width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
+    std::size_t height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
 
     contents_to_display.emplace_back(get_header_or_footer(QUICKACCESS_HEADER, width));
     std::string empty_line(width, SPACE);

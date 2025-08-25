@@ -42,7 +42,7 @@ private:
     std::vector<std::string> quick_access_paths(); 
 
     // PROGRAM
-    void init();
+    bool init();
     void program_loop();
     void finish();
     void on_window_resize();

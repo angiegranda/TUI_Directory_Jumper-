@@ -1,5 +1,6 @@
 #include "NavegationView.h"
 #include <algorithm>
+#include <cstring>
 
 void NavegationView::render_window(
     const std::shared_ptr<Buffer> left_contents,
@@ -10,8 +11,8 @@ void NavegationView::render_window(
     const fs::path& current_path) 
     {
     auto [width_, height_] = UI::get_terminal_size(); // implicit conversion from int to size_t
-    width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, std::min<std::size_t>(width_,  MAX_TERMINAL_WIDTH));
-    height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT,  std::min<std::size_t>(height_, MAX_TERMINAL_HEIGHT));
+    width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
+    height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
 
     if ((middle_contents->get_directories().size() + 
         middle_contents->get_files().size()) == 0) return;
@@ -217,6 +218,7 @@ void NavegationView::prepare_two_window_display(
         return;
     }
     auto [total_lines, col_width, reminder] = get_metrics(2);
+    
     auto middle_contents = preprocess_contents(middle_buffer, current_pos, true, col_width, total_lines);
     auto right_contents = preprocess_contents(right_buffer, 0, false, col_width+reminder, total_lines);
     std::string empty_line(width, SPACE);

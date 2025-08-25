@@ -3,9 +3,7 @@
 #include <iostream>
 
 constexpr std::size_t MIN_TERMINAL_WIDTH = 60;
-constexpr std::size_t MAX_TERMINAL_WIDTH = 120;
 constexpr std::size_t MIN_TERMINAL_HEIGHT = 14;
-constexpr std::size_t MAX_TERMINAL_HEIGHT = 40;
 
 constexpr char BOLD_ON[]  = "\033[1m";
 constexpr char RESET[]    = "\033[0m";

@@ -13,10 +13,30 @@
 
 
 TerminalWriter UI::ts;
+struct termios UI::ot; 
+
 std::function<void()> UI::window_resize_handle;
 #ifdef _WIN32
 WindowsResizeMonitor UI::wrm;
 #endif 
+
+bool UI::init() {
+
+    int fd = -1;
+    if (isatty(STDOUT_FILENO))      fd = STDOUT_FILENO;
+    else if (isatty(STDIN_FILENO))  fd = STDIN_FILENO;
+    else if (isatty(STDERR_FILENO)) fd = STDERR_FILENO;
+
+#ifndef _WIN32
+    tcgetattr(STDIN_FILENO, &UI::ot); 
+    struct termios nt = UI::ot;
+    nt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &nt);
+#endif
+
+    return (fd != -1);
+}
+
 
 void UI::set_window_resize_handler(std::function<void()> handle_window_resize) {
     window_resize_handle = handle_window_resize;
@@ -40,13 +60,7 @@ int UI::readchar() {
 #ifdef _WIN32
     return _getch(); 
 #else
-    struct termios ot; 
-    tcgetattr(STDIN_FILENO, &ot); 
-    struct termios nt = ot;
-    nt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &nt);
     int c = getchar();
-    tcsetattr(STDIN_FILENO, TCSANOW, &ot);
     return c;
 #endif 
 }
@@ -63,6 +77,9 @@ std::tuple<int,int> UI::get_terminal_size() {
     return {80, 24}; // fallback
 #else
     struct winsize w{};
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    return { w.ws_col, w.ws_row };
+
     int fd = -1;
 
     if (isatty(STDOUT_FILENO))      fd = STDOUT_FILENO;
@@ -107,4 +124,10 @@ void UI::render_window(std::vector<std::string> window_info) {
 
 void UI::clean_window() {
     UI::ts.clear_app_output();
+}
+
+void UI::finish() {
+#ifndef _WIN32
+    tcsetattr(STDIN_FILENO, TCSANOW, &UI::ot);
+#endif
 }

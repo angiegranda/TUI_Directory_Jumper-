@@ -105,10 +105,11 @@ Controller::Controller(): m_explorer(fs::current_path()) {
     m_list_pos = 0;
 }
 
-void Controller::init() {
+bool Controller::init() {
     // for Windows executes a separate thread where the change of the size is constantly checked
     // std::bind(&Controller::on_window_resize, this) is a way to wrap a member function (on_window_resize) of this particular object (this) into a callable function that can be stored and called later.
     UI::set_window_resize_handler(std::bind(&Controller::on_window_resize, this));
+    return UI::init();
 }
 
 void Controller::program_loop() {
@@ -205,10 +206,14 @@ bool Controller::handle_quickaccess(char key) {
 void Controller::finish() {
     UI::deactivate_window_resize_handler();
     m_quick_access.save_data();
+    UI::finish();
 }
 
 void Controller::run()  {
-    init();
+    bool success = init();
+    if (!success) {
+        return;
+    }
     program_loop();
     finish();
 }
