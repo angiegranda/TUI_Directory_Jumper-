@@ -51,7 +51,6 @@ void QuickAccessView::render_window(std::vector<std::string> paths_list, std::si
     auto [width_, height_] = UI::get_terminal_size();
     std::size_t width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
     std::size_t height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
-
     contents_to_display.emplace_back(get_header_or_footer(QUICKACCESS_HEADER, width));
     std::string empty_line(width, SPACE);
     contents_to_display.emplace_back(empty_line);

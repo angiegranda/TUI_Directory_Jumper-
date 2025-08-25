@@ -1,3 +1,4 @@
+// 
 #include "UI.h"
 #include <cstdlib>
 #ifdef _WIN32
@@ -28,17 +29,16 @@ bool UI::init() {
 #ifdef _WIN32
     return true;
 #else
-    int fd = -1;
+    if (!isatty(STDIN_FILENO)) {
+        return false;
+    }
 
-    if (isatty(STDOUT_FILENO))      fd = STDOUT_FILENO;
-    else if (isatty(STDIN_FILENO))  fd = STDIN_FILENO;
-    else if (isatty(STDERR_FILENO)) fd = STDERR_FILENO;
     tcgetattr(STDIN_FILENO, &UI::ot); 
     struct termios nt = UI::ot;
     nt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &nt);
 
-    return (fd != -1);
+    return true;
 #endif
 }
 
@@ -74,15 +74,13 @@ std::tuple<int,int> UI::get_terminal_size() {
 #ifdef _WIN32
     HANDLE c_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (GetConsoleScreenBufferInfo(c_handle, &csbi)) {
-        int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-        return {cols, rows};
-    }
-    return {120, 54}; // fallback
+    GetConsoleScreenBufferInfo(c_handle, &csbi)
+    int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    return {cols, rows};
 #else
     struct winsize w{};
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    ioctl(STDIN_FILENO, TIOCGWINSZ, &w);
     return { w.ws_col, w.ws_row };
 #endif
 }

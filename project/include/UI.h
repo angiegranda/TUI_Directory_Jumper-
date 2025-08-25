@@ -23,11 +23,11 @@ private:
     static void window_resize_handler(int sig);
     static struct termios ot; 
 #endif
+    static TerminalWriter ts;
 
 public:
 
     static bool init();
-    static TerminalWriter ts;
     static std::tuple<int, int> get_terminal_size();
     static void set_window_resize_handler(std::function<void()> handle_window_resize);
     static void deactivate_window_resize_handler();

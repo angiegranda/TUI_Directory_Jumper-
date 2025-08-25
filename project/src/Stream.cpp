@@ -78,7 +78,10 @@ void TerminalWriter::erase_line() {
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     DWORD count;
     COORD pos = csbi.dwCursorPosition;
-    FillConsoleOutputCharacter(hConsole, ' ', csbi.dwSize.X, {0, pos.Y}, &count);
+    //FillConsoleOutputCharacter(hConsole, ' ', csbi.dwSize.X, {0, pos.Y}, &count);
+    SHORT visibleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    FillConsoleOutputCharacter(hConsole, ' ', visibleWidth, {0, pos.Y}, &count);
+    
     SetConsoleCursorPosition(hConsole, pos);
 #else
     (*out) << "\x1b[2K\r";
