@@ -1,5 +1,6 @@
 #include "Controller.h"
 #include "UI.h"
+#include <algorithm>
 #include <iostream>
 
 // ------------------------------ NAVEGATION ACTIONS --------------------------------

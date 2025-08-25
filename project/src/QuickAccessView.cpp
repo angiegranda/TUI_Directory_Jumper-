@@ -1,4 +1,5 @@
 #include "QuickAccessView.h"
+#include <algorithm>
 #include <sstream>
 #include <stack>
 #include <cstring>

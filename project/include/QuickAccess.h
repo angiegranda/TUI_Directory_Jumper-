@@ -12,7 +12,7 @@ struct PathInfo {
 
 class QuickAccess {
     private:
-    fs::path get_executable_directory();
+    std::string get_executable_directory();
     public:
     // m_total_visits == 0 iff m_data == 0 
     const fs::path file_path;

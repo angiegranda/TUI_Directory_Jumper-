@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
+#include <cstdlib>
 
 #if defined(__linux__)
 #include <unistd.h>
@@ -16,29 +17,30 @@
 #include <windows.h>
 #endif
 
-fs::path QuickAccess::get_executable_directory() {
-#if defined(__linux__)
-    char buf[PATH_MAX];
-    ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf)-1);
-    if (len == -1) throw std::runtime_error("Cannot read /proc/self/exe");
-    buf[len] = '\0';
-    return std::filesystem::path(buf).parent_path();
-#elif defined(__APPLE__)
-    char buf[PATH_MAX];
-    uint32_t size = sizeof(buf);
-    if (_NSGetExecutablePath(buf, &size) != 0)
-        throw std::runtime_error("Buffer too small for executable path");
-    auto path = std::filesystem::path(buf);
-    return std::filesystem::canonical(path).parent_path();
+
+std::string QuickAccess::get_executable_directory() {
+    const char* dir;
+
+#ifndef _WIN32
+    dir = std::getenv("XDG_DATA_HOME"); // Preferred for Linux
+    if (!dir) {
+        dir = std::getenv("HOME"); // Fallback to HOME
+    }
 #else
-    wchar_t buffer[MAX_PATH];
-    DWORD len = GetModuleFileNameW(NULL, buffer, MAX_PATH);
-    if (len == 0) throw std::runtime_error("Cannot get executable path");
-    return std::filesystem::path(buffer).parent_path();
+    dir = std::getenv("APPDATA"); // For Windows
 #endif
+
+    // Check if the environment variable is set
+    if (dir) {
+        std::filesystem::path dataPath = std::filesystem::path(dir) / QUICK_ACCESS_FILE; // Append a subdirectory
+        return dataPath.string(); // Convert to std::string
+    }
+    else {
+        return ""; // Return an empty string if not found
+    }
 }
 
-QuickAccess::QuickAccess() : file_path(get_executable_directory() / QUICK_ACCESS_FILE) {
+QuickAccess::QuickAccess() : file_path(get_executable_directory()) {
     m_data.clear();
     std::fstream file(file_path);
     if (!file.is_open()) {

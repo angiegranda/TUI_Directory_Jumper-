@@ -2,6 +2,7 @@
 #include <cstdlib>
 #ifdef _WIN32
     #include <conio.h>
+    #define NOMINMAX
     #include <windows.h>
 #else
     #include <csignal>
@@ -13,7 +14,9 @@
 
 
 TerminalWriter UI::ts;
-struct termios UI::ot; 
+#ifndef _WIN32
+struct termios UI::ot;
+#endif
 
 std::function<void()> UI::window_resize_handle;
 #ifdef _WIN32
@@ -22,19 +25,21 @@ WindowsResizeMonitor UI::wrm;
 
 bool UI::init() {
 
+#ifdef _WIN32
+    return true;
+#else
     int fd = -1;
+
     if (isatty(STDOUT_FILENO))      fd = STDOUT_FILENO;
     else if (isatty(STDIN_FILENO))  fd = STDIN_FILENO;
     else if (isatty(STDERR_FILENO)) fd = STDERR_FILENO;
-
-#ifndef _WIN32
     tcgetattr(STDIN_FILENO, &UI::ot); 
     struct termios nt = UI::ot;
     nt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &nt);
-#endif
 
     return (fd != -1);
+#endif
 }
 
 
