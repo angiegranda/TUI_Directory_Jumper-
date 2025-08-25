@@ -1,6 +1,8 @@
 #include "Buffer.h"
-#include <iostream> // when errors cannot happend then it is not needed
+#include <iostream> 
 #include <exception>
+#include <algorithm>
+#include <fstream>
 
 Buffer::Buffer(const fs::path& path) { fill_buffer(path); } 
 
@@ -10,25 +12,28 @@ void Buffer::fill_buffer(const fs::path& path){
     try {
         if (fs::exists(path) && fs::is_directory(path)) {
             for (auto&& entry : fs::directory_iterator(path)) {
-                if (fs::is_directory(entry)){
-                    m_directories.emplace_back(entry.path().filename().string());
+                try {
+                    if (fs::is_directory(entry)){
+                        m_directories.emplace_back(entry.path().filename().string());
+                    }
+                    else if (fs::is_regular_file(entry)) {
+                        std::ifstream test(entry.path(), std::ios::binary);
+                        if (test.is_open()) {
+                            m_files.emplace_back(entry.path().filename().string());
+                        }
+                    }
                 }
-                else{
-                    m_files.emplace_back(entry.path().filename().string());
+                catch (const std::exception&) {
+                    continue;
                 }
             }
-
-            std::sort(m_directories.begin(), m_directories.end(), 
-                [](std::string a, std::string b) { return a < b;}); 
-            std::sort(m_files.begin(), m_files.end(), 
-                [](std::string a, std::string b) { return a < b;}); 
+            std::sort(m_directories.begin(), m_directories.end());
+            std::sort(m_files.begin(), m_files.end()); 
         } 
-        else {
-            std::cout << "Path not found!" << std::endl;
-        }
     }
-    catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
+    catch (const std::exception&) {
+        m_directories.clear();
+        m_files.clear();
     }
 }
 

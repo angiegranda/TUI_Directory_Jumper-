@@ -1,10 +1,8 @@
 #include "Controller.h"
 #include <iostream>
 
-
 int main() {
-    fs::path path = "/Users/angiegranda";
-    Controller controller(path);
+    Controller controller;
     controller.run();
     return 0;
 }

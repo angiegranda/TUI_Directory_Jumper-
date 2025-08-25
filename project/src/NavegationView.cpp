@@ -1,0 +1,307 @@
+#include "NavegationView.h"
+#include <algorithm>
+
+void NavegationView::render_window(
+    const std::shared_ptr<Buffer> left_contents,
+    const std::shared_ptr<Buffer> middle_contents,
+    const std::shared_ptr<Buffer> right_contents,
+    const std::size_t parent_pos,
+    const std::size_t current_pos,
+    const fs::path& current_path) 
+    {
+    auto [width_, height_] = UI::get_terminal_size(); // implicit conversion from int to size_t
+    width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, std::min<std::size_t>(width_,  MAX_TERMINAL_WIDTH));
+    height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT,  std::min<std::size_t>(height_, MAX_TERMINAL_HEIGHT));
+
+    if ((middle_contents->get_directories().size() + 
+        middle_contents->get_files().size()) == 0) return;
+
+    if (left_contents == nullptr) { 
+        NavegationView::prepare_two_window_display(
+        middle_contents, right_contents, current_pos, current_path);
+    }
+    else if (right_contents == nullptr 
+        || current_pos >= middle_contents->get_directories().size()) { // we are selecting a file in the current directory
+        NavegationView::prepare_display_three_windows( 
+        left_contents, middle_contents, parent_pos, current_pos, current_path);
+    }
+    else { 
+        NavegationView::prepare_display_three_windows(
+        left_contents, middle_contents, right_contents, parent_pos, current_pos);
+    }
+}
+
+std::string NavegationView::get_header_or_footer(const char* text, const std::size_t width_) {
+    std::size_t remaning_spaces = width_ > std::strlen(text) ? width_ - std::strlen(text) : 0;
+    std::size_t corner_spaces = remaning_spaces / 2;
+    std::size_t remainder = remaning_spaces % 2;
+    std::string line;
+    line.reserve(width_);
+    line.append(WHITE_TEXT_COLOR);
+    line.append(BOLD_ON);
+    line.append(std::string(corner_spaces, SPACE));
+    line.append(text); 
+    line.append(std::string(corner_spaces + remainder, SPACE));
+    line.append(RESET);  
+    return line;
+}
+
+Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
+    std::size_t total_lines = std::max<std::size_t>(NAVEGATION_MIN_LINES, height - NAVEGATION_RESERVED_LINES);
+    std::size_t total_pad = column_number * BETWEEN_COLUMNS_SPACE; //
+
+    std::size_t usable_width = std::max<std::size_t>(MIN_TERMINAL_WIDTH - total_pad, width - total_pad); 
+    std::size_t base_width = usable_width / column_number;
+    std::size_t remainder  = usable_width % column_number;
+
+    return std::make_tuple(total_lines, base_width, remainder);
+}
+
+void NavegationView::process_text(
+    std::vector<std::string>& contents, 
+    const std::size_t width_, 
+    const std::size_t total_lines) {
+
+    std::string empty_line(width_, SPACE);
+    std::size_t total_chars = 0;
+    std::size_t non_printable_chars = 0;
+    std::size_t curr_line_pos = 0;
+    for (std::size_t i = 0; i < contents.size(); ++i) {
+        // std::string normalizes endings and special chars for multiplatform operational systems
+        std::string line = contents[i];
+        std::string clean;
+        clean.reserve(line.size());  
+        for (unsigned char char_ : line) {
+            ++total_chars;
+            if (char_ != NEW_LINE && char_ != CARRIAGE_RETURN &&
+                char_ != TAB && !std::isprint(char_)) {
+                    ++non_printable_chars;
+            }
+            char_ = char_ == TAB ? SPACE : char_;
+            if (char_ >= 32 && char_ != 127) {
+                clean += char_;
+            }
+        }
+        ++curr_line_pos;
+        if (clean.size() >= width_) {
+            contents[i] = clean.substr(0, width_);
+        } else {
+            contents[i] = clean + std::string(width_ - clean.size(), SPACE);
+        }
+    }
+    if (static_cast<double>(non_printable_chars) / total_chars > BINARY_HEURISTIC) { 
+        contents.clear();
+        if (std::strlen(BINARY_FILE) >= width_) {
+            contents.emplace_back(std::string(BINARY_FILE).substr(0, width_));
+        } else {
+            contents.emplace_back(BINARY_FILE + std::string(width_ - std::strlen(BINARY_FILE) , SPACE));
+        }
+        curr_line_pos = 1;
+    }
+    while (curr_line_pos < total_lines) {
+        contents.emplace_back(empty_line);
+        ++curr_line_pos;
+    }
+}
+
+std::vector<std::string> NavegationView::get_text_contents(fs::path file_path, const std::size_t width_, const std::size_t total_lines) {
+    
+    std::vector<std::string> contents;
+    std::ifstream file(file_path);
+
+    if (!file.is_open()) {
+        std::string info = ERROR_OPEN_FILE + file_path.string();
+        contents.emplace_back(info);
+        process_text(contents, width_, total_lines);
+        return contents;
+    }
+
+    std::string line; 
+    std::size_t pos = 0;
+    while (std::getline(file, line) && pos < total_lines) {
+        if (line.empty()){ continue; }
+        contents.emplace_back(line);
+        ++pos;
+    }
+
+    if (pos == 0) {
+        contents.emplace_back(EMPTY_FILE);
+    }
+    process_text(contents, width_, total_lines);
+    file.close();
+    return contents;
+}
+
+std::vector<std::tuple<std::string, bool, bool>> NavegationView::preprocess_contents(
+    const std::shared_ptr<Buffer> buffer, 
+    const std::size_t pos, 
+    bool has_selected_dir,
+    const std::size_t col_width, 
+    const std::size_t total_lines) {
+
+    std::vector<std::tuple<std::string, bool, bool>> processed_output;
+
+    const auto& dirs  = buffer->get_directories();
+    const auto& files = buffer->get_files();
+    std::size_t M = dirs.size();
+    std::size_t N = files.size();
+
+    std::size_t start = (pos >= total_lines) ? (pos - total_lines + 1) : 0;
+    std::size_t end   = (pos >= total_lines) ? pos : (total_lines - 1);
+    end = std::min(end, M + N - 1); 
+
+    std::string empty_line(col_width, SPACE);
+    std::size_t curr_line = 0;
+
+    for (std::size_t idx = start; idx <= end && curr_line < total_lines; ++idx, ++curr_line) {
+        std::string name;
+        bool is_dir = false;
+        bool highlighted = has_selected_dir && (idx == pos);
+        if (idx < M) {
+            is_dir = true;
+            const auto& entry = dirs[idx];
+            name = (entry.size() > col_width && col_width > std::strlen(DOTS)) 
+                ? entry.substr(0, col_width - std::strlen(DOTS)) + DOTS
+                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE);
+        } else if (idx < M + N) {
+            const auto& entry = files[idx - M];
+            name = (entry.size() > col_width && col_width > std::strlen(DOTS)) 
+                ? entry.substr(0, col_width - std::strlen(DOTS)) + DOTS
+                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE);
+        } else {
+            name = empty_line;
+        }
+        processed_output.emplace_back(name, is_dir, highlighted);
+    }
+    while (curr_line < total_lines) {
+        processed_output.emplace_back(empty_line, false, false);
+        ++curr_line;
+    }
+
+    return processed_output;
+}
+
+std::string NavegationView::string_format(const std::tuple<std::string, bool, bool>& item) {
+    const std::string& text = std::get<0>(item);
+    bool bold = std::get<1>(item); 
+    bool highlighted = std::get<2>(item);
+
+    std::string output;
+    if (bold) {
+        output += MAGENTA_TEXT_COLOR;
+        output += BOLD_ON;
+        if (highlighted) {
+            output += PALE_GREEN_HIGHLIGHT;
+        }
+    }
+    if (!bold) { // it is a text 
+        if (highlighted) {
+            output += BLACK_TEXT_COLOR;
+            output += PALE_GREEN_HIGHLIGHT;
+        } else {
+            output += WHITE_TEXT_COLOR;
+        }
+    }
+    output += text;
+    output += RESET;
+    return output;
+}
+
+void NavegationView::prepare_two_window_display(
+    const std::shared_ptr<Buffer> middle_buffer,
+    const std::shared_ptr<Buffer> right_buffer, 
+    const std::size_t current_pos, 
+    const fs::path& current_path) {
+
+    if (right_buffer == nullptr) {
+        return;
+    }
+    auto [total_lines, col_width, reminder] = get_metrics(2);
+    auto middle_contents = preprocess_contents(middle_buffer, current_pos, true, col_width, total_lines);
+    auto right_contents = preprocess_contents(right_buffer, 0, false, col_width+reminder, total_lines);
+    std::string empty_line(width, SPACE);
+    std::vector<std::string> contents_to_display;
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_HEADER, width));
+    contents_to_display.emplace_back(empty_line);
+    for (std::size_t i = 0; i < total_lines; ++i) {
+        std::string line = SPACE + 
+        string_format(middle_contents[i]) + 
+        std::string(BETWEEN_COLUMNS_SPACE, SPACE) + 
+        string_format(right_contents[i]) + 
+        SPACE; 
+
+        contents_to_display.emplace_back(line);
+    }
+    contents_to_display.emplace_back(empty_line);
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER1, width));
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER2, width));
+    UI::render_window(contents_to_display);
+}
+
+void NavegationView::prepare_display_three_windows(
+    const std::shared_ptr<Buffer> left_buffer, 
+    const std::shared_ptr<Buffer> middle_buffer, 
+    const std::size_t parent_pos, 
+    const std::size_t current_pos, 
+    const fs::path& current_path) {
+
+    auto [total_lines, col_width, reminder] = get_metrics(3);
+    std::string filename = middle_buffer->get_files()[current_pos - middle_buffer->get_directories().size()];
+    fs::path file_path = current_path / filename;
+    auto text =  get_text_contents(file_path, col_width + reminder, total_lines);
+    auto left_contents = preprocess_contents(left_buffer, parent_pos, true, col_width, total_lines);
+    auto middle_contents = preprocess_contents(middle_buffer, current_pos, true, col_width, total_lines);
+    std::vector<std::string> contents_to_display;
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_HEADER, width));
+    contents_to_display.emplace_back(std::string(width, SPACE));
+    for (std::size_t i = 0; i < total_lines; ++i) {
+
+        std::string line = SPACE + 
+        string_format(left_contents[i]) + 
+        std::string(BETWEEN_COLUMNS_SPACE, SPACE) + 
+        string_format(middle_contents[i]) + 
+        std::string(BETWEEN_COLUMNS_SPACE, SPACE) + 
+        text[i] + SPACE;
+
+        contents_to_display.emplace_back(line);
+    }
+    contents_to_display.emplace_back(std::string(width, SPACE));
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER1, width));
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER2, width));
+    UI::render_window(contents_to_display);
+}
+
+void NavegationView::prepare_display_three_windows(
+    const std::shared_ptr<Buffer> left_buffer, 
+    const std::shared_ptr<Buffer> middle_buffer, 
+    const std::shared_ptr<Buffer> right_buffer, 
+    const std::size_t parent_pos, 
+    const std::size_t current_pos) {
+
+    auto [total_lines, col_width, reminder] = get_metrics(3);
+
+    auto left_contents = preprocess_contents(left_buffer, parent_pos, true, col_width, total_lines);
+    auto middle_contents = preprocess_contents(middle_buffer, current_pos, true, col_width, total_lines);
+    auto right_contents = preprocess_contents(right_buffer, 0, false, col_width+reminder, total_lines);
+
+    std::vector<std::string> contents_to_display;
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_HEADER, width));
+    contents_to_display.emplace_back(std::string(width, SPACE));
+    for (std::size_t i = 0; i < total_lines; ++i) {
+
+        std::string line = SPACE+ 
+        string_format(left_contents[i]) + 
+        std::string(BETWEEN_COLUMNS_SPACE, SPACE) + 
+        string_format(middle_contents[i]) + 
+        std::string(BETWEEN_COLUMNS_SPACE, SPACE) + 
+        string_format(right_contents[i]) + 
+        SPACE;
+
+        contents_to_display.emplace_back(line);
+    }
+    contents_to_display.emplace_back(std::string(width, SPACE));
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER1, width));
+    contents_to_display.emplace_back(get_header_or_footer(NAVEGATION_FOOTER2, width));
+    UI::render_window(contents_to_display);
+
+}

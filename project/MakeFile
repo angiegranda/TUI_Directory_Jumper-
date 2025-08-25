@@ -1,5 +1,6 @@
 .PHONY: setup-dev build-dev run-dev hf sf ff
 
+
 run-dev:
 	cmake --preset=dev-linux .
 	mv build/dev/compile_commands.json ./

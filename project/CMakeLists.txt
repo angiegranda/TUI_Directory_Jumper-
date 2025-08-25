@@ -14,7 +14,11 @@ set(SOURCES
     src/Controller.cpp
     src/Explorer.cpp
     src/UI.cpp
-
+    src/Stream.cpp 
+    src/QuickAccess.cpp
+    src/QuickAccessView.cpp
+    src/NavegationView.cpp
+    
     src/Main.cpp
 )
 

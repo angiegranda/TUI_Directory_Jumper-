@@ -1,0 +1,29 @@
+#ifndef _CFD_TERMINAL_CONSTANTS_H_
+#define _CFD_TERMINAL_CONSTANTS_H_
+#include <iostream>
+
+constexpr std::size_t MIN_TERMINAL_WIDTH = 60;
+constexpr std::size_t MAX_TERMINAL_WIDTH = 120;
+constexpr std::size_t MIN_TERMINAL_HEIGHT = 14;
+constexpr std::size_t MAX_TERMINAL_HEIGHT = 40;
+
+constexpr char BOLD_ON[]  = "\033[1m";
+constexpr char RESET[]    = "\033[0m";
+
+// --------------- COLORS FOR TEXT ------------------
+
+// FOLDERS
+constexpr char MAGENTA_TEXT_COLOR[] = "\033[35m";
+
+// TEXT, FILE NAMES WHEN NOT SELECTED, HEADER AND FOOTER 
+constexpr char WHITE_TEXT_COLOR[] = "\033[37m";
+
+// FILE NAMES WHEN SELECTED 
+constexpr char BLACK_TEXT_COLOR[] = "\033[30m";
+
+// --------------- HIGHLIGHTS ------------------
+
+constexpr char PALE_GREEN_HIGHLIGHT[] = "\033[102m";
+
+
+#endif

@@ -11,12 +11,10 @@ WindowsResizeMonitor::~WindowsResizeMonitor() {
 }
 
 void WindowsResizeMonitor::start() {
-    std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_mutex); // Thid ensures that only one thread at a time can enter that a time
 
     if (_is_running) { return; }
-
     _is_running = true;
-
     _worker = std::thread(std::bind(&WindowsResizeMonitor::m_execute, this));
 }
 
@@ -24,10 +22,9 @@ void WindowsResizeMonitor::stop() {
     std::lock_guard<std::mutex> lock(_mutex);
 
     if (!_is_running) { return; }
-
     _is_running = false;
     if (_worker.joinable()) {
-        _worker.join();
+        _worker.join(); // wait until worker really exits
     }
 }
 
