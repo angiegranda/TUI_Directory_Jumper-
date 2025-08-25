@@ -17,7 +17,7 @@
 #include <windows.h>
 #endif
 
-
+//pwsh.exe
 std::string QuickAccess::get_executable_directory() {
     const char* dir;
 

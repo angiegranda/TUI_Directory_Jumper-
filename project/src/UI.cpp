@@ -79,28 +79,11 @@ std::tuple<int,int> UI::get_terminal_size() {
         int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
         return {cols, rows};
     }
-    return {80, 24}; // fallback
+    return {120, 54}; // fallback
 #else
     struct winsize w{};
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return { w.ws_col, w.ws_row };
-
-    int fd = -1;
-
-    if (isatty(STDOUT_FILENO))      fd = STDOUT_FILENO;
-    else if (isatty(STDIN_FILENO))  fd = STDIN_FILENO;
-    else if (isatty(STDERR_FILENO)) fd = STDERR_FILENO;
-
-    if (fd >= 0 && ioctl(fd, TIOCGWINSZ, &w) == 0) {
-        int cols = (w.ws_col > 0 ? w.ws_col : 80);
-        int rows = (w.ws_row > 0 ? w.ws_row : 24);
-        return {cols, rows};
-    }
-    const char* cols_env = std::getenv("COLUMNS");
-    const char* rows_env = std::getenv("LINES");
-    int cols = cols_env ? std::max(40, atoi(cols_env)) : 80;
-    int rows = rows_env ? std::max(10, atoi(rows_env)) : 24;
-    return {cols, rows};
 #endif
 }
 
