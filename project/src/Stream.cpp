@@ -14,15 +14,33 @@ TerminalWriter::TerminalWriter() {
 #ifdef _WIN32
     enableAnsiOnWindows();
     fileStream.open("CONOUT$");
-    if (!fileStream.is_open()) throw std::runtime_error("Failed to open CONOUT$");
-    out = &fileStream;
-    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole == INVALID_HANDLE_VALUE) throw std::runtime_error("Failed to get console handle");
+    if (!fileStream.is_open()) {
+        stream_state = false;
+    }
+    else {
+        out = &fileStream;
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (hConsole == INVALID_HANDLE_VALUE) {
+            stream_state = false;
+        }
+        else {
+            stream_state = true;
+        }
+    }
 #else
     fileStream.open("/dev/tty");
-    if (!fileStream.is_open()) throw std::runtime_error("Failed to open /dev/tty");
-    out = &fileStream;
+    if (!fileStream.is_open()) {
+        stream_state = false;
+    }
+    else {
+        out = &fileStream;
+        stream_state = true;
+    }
 #endif
+}
+
+bool TerminalWriter::get_initialization_state() {
+    return stream_state;
 }
 
 TerminalWriter::~TerminalWriter() {
@@ -62,28 +80,9 @@ void TerminalWriter::clear_app_output() {
 
 
 void TerminalWriter::move_cursor_up(size_t lines) {
-#ifdef _WIN32
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    csbi.dwCursorPosition.Y -= static_cast<SHORT>(lines);
-    SetConsoleCursorPosition(hConsole, csbi.dwCursorPosition);
-#else
     (*out) << "\x1b[" << lines << "A";
-#endif
 }
 
 void TerminalWriter::erase_line() {
-#ifdef _WIN32
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    DWORD count;
-    COORD pos = csbi.dwCursorPosition;
-    //FillConsoleOutputCharacter(hConsole, ' ', csbi.dwSize.X, {0, pos.Y}, &count);
-    SHORT visibleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    FillConsoleOutputCharacter(hConsole, ' ', visibleWidth, {0, pos.Y}, &count);
-    
-    SetConsoleCursorPosition(hConsole, pos);
-#else
     (*out) << "\x1b[2K\r";
-#endif
 }

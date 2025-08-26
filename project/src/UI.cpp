@@ -38,7 +38,7 @@ bool UI::init() {
     nt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &nt);
 
-    return true;
+    return UI::ts.get_initialization_state();
 #endif
 }
 
@@ -72,13 +72,18 @@ int UI::readchar() {
 
 std::tuple<int,int> UI::get_terminal_size() {
 #ifdef _WIN32
-    HANDLE c_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    AttachConsole(ATTACH_PARENT_PROCESS); 
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole == INVALID_HANDLE_VALUE) return { 60, 25 };
+
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(c_handle, &csbi);
+    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+        return { 90, 30};
+    }
     int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    return {cols, rows};
-#else
+    return { cols, rows };
+#else 
     struct winsize w{};
     ioctl(STDIN_FILENO, TIOCGWINSZ, &w);
     return { w.ws_col, w.ws_row };

@@ -18,7 +18,10 @@ public:
     void write_line(const std::string& msg);
     void flush();
     void clear_app_output();
+    bool get_initialization_state();
 private:
+    friend class UI;
+    bool stream_state;
     std::ofstream fileStream;
     std::ostream* out = nullptr;
     size_t printed_lines = 0;
