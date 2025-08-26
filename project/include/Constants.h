@@ -50,12 +50,12 @@ constexpr double LAMBDA = 0.8;
     constexpr char SLASH[] = "/";
 #endif
 constexpr char DIR_SHORTCUT[] = "..";
-constexpr std::size_t QUICKACCESS_RESERVED_LINES = 6; // 1 header, 2 footer, 2 between, 2 for correct visualization
+constexpr std::size_t QUICKACCESS_RESERVED_LINES = 7; // 1 header, 2 footer, 2 between, 2 for correct visualization
 
 
 // NAVEGATION  
 
-constexpr std::size_t NAVEGATION_RESERVED_LINES = 6;
+constexpr std::size_t NAVEGATION_RESERVED_LINES = 7;
 constexpr std::size_t BETWEEN_COLUMNS_SPACE = 2;
 constexpr std::size_t NAVEGATION_MIN_LINES = 10;
 constexpr double BINARY_HEURISTIC = 0.1;\
