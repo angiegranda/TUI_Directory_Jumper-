@@ -74,7 +74,7 @@ std::tuple<int,int> UI::get_terminal_size() {
 #ifdef _WIN32
     HANDLE c_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(c_handle, &csbi)
+    GetConsoleScreenBufferInfo(c_handle, &csbi);
     int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
     return {cols, rows};
