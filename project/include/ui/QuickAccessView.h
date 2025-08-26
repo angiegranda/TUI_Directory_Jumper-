@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "TerminalConstants.h"
 #include "UI.h"
+#include "QuickAccess.h"
 #include <string>
 #include <tuple>
 

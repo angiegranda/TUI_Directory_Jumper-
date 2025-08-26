@@ -14,7 +14,7 @@ TerminalWriter::TerminalWriter() {
 #ifdef _WIN32
     enableAnsiOnWindows();
     m_fileStream.open(WINDOWS_OUTPUT_FILE);
-    if (!fileStream.is_open()) {
+    if (!m_fileStream.is_open()) {
         m_stream_state = false;
     }
     else {

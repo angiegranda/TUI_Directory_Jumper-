@@ -25,7 +25,7 @@ if(WIN32)
     list(APPEND SOURCES src/ui/WindowsResizeMonitor.cpp)
 endif()
 
-add_executable(tcds ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/controller)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/ui)
