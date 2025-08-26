@@ -163,9 +163,9 @@ std::vector<std::string> NavegationView::preprocess_contents(
         if (idx < M) {
             const auto& entry = dirs[idx];
             oss << MAGENTA_TEXT_COLOR << BOLD_ON << (highlighted? PALE_GREEN_HIGHLIGHT : "");
-            oss << (entry.size() > col_width && col_width > std::strlen(DOTS)) 
+            oss << ((entry.size() > col_width && col_width > std::strlen(DOTS)) 
                 ? entry.substr(0, col_width - std::strlen(DOTS)) + DOTS
-                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE);
+                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE));
         } else if (idx < M + N) {
             if (highlighted) {
                 oss << BLACK_TEXT_COLOR << PALE_GREEN_HIGHLIGHT;
@@ -173,9 +173,9 @@ std::vector<std::string> NavegationView::preprocess_contents(
                 oss << WHITE_TEXT_COLOR;
             }
             const auto& entry = files[idx - M];
-            oss << (entry.size() > col_width && col_width > std::strlen(DOTS)) 
+            oss << ((entry.size() > col_width && col_width > std::strlen(DOTS)) 
                 ? entry.substr(0, col_width - std::strlen(DOTS)) + DOTS
-                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE);
+                : entry + std::string(col_width > entry.size() ? col_width - entry.size() : 0, SPACE));
         } else {
             oss << empty_line;
         }
@@ -202,7 +202,6 @@ void NavegationView::add_footer(std::vector<std::string>& contents_to_display) {
 }
 
 
-// TODO
 void NavegationView::prepare_two_window_display(
     const std::shared_ptr<Buffer> middle_buffer,
     const std::shared_ptr<Buffer> right_buffer, 

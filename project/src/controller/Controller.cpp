@@ -227,7 +227,7 @@ Controller::Controller(): m_explorer(fs::current_path()) {
 }
 
 void Controller::run()  {
-    std::cout << "\033[2J\033[H" << std::flush;
+    //std::cout << "\033[2J\033[H" << std::flush;
     bool success = init();
     if (!success) {
         return;

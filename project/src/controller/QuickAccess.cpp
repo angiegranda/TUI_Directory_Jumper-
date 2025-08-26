@@ -5,6 +5,7 @@
 #include <algorithm> // std::sort
 #include <cstdlib> // std::getenv
 #include <exception>
+#include <iostream>
 
 void QuickAccess::set_path() {
     const char* dir;
