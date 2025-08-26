@@ -26,6 +26,7 @@ private:
     QuickAccess m_quick_access;
     std::size_t m_list_pos;
     QuickAccessView q_view;
+    std::size_t m_quick_access_path;
 
     void parse_args(int argc, char* argv[]);
     void render_window();
@@ -39,7 +40,6 @@ private:
 
     // QUICKACCESS
     void update_quick_list();
-    std::vector<std::string> quick_access_paths(); 
 
     // PROGRAM
     bool init();

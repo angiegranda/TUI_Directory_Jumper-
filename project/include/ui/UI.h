@@ -1,29 +1,26 @@
 #ifndef _CFD_UI_H_
 #define _CFD_UI_H_
-#include "Buffer.h"
-#include "Stream.h"
+#include "TerminalWriter.h"
 #include <functional>
 #include <tuple>
-#include <fstream>
 
 #ifdef _WIN32
     #include "WindowsResizeMonitor.h"
 #endif 
 
-
 class UI {
 
 private:
     static std::function<void()> window_resize_handle;
+    static TerminalWriter ts;
 #ifdef _WIN32
     friend WindowsResizeMonitor;
     static WindowsResizeMonitor wrm;
     static void window_resize_handler();
 #else
-    static void window_resize_handler(int sig);
     static struct termios ot; 
+    static void window_resize_handler(int sig);
 #endif
-    static TerminalWriter ts;
 
 public:
 

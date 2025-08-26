@@ -1,5 +1,27 @@
 #include "Explorer.h"
 
+// ---------------------- PRIVATE -------------------
+
+void Explorer::set_parent_buffer() {
+    if (m_current_path == m_current_path.parent_path()){ 
+        m_parent_buffer = nullptr;
+        return;
+    }
+    m_parent_buffer = std::make_shared<Buffer>(m_current_path.parent_path());
+}
+   
+void Explorer::set_child_buffer() {
+     if (!m_current_buffer->has_directories()) {
+        m_child_buffer = nullptr;
+        m_selected_dir = std::nullopt;
+        return;
+    }
+    m_selected_dir = *(m_current_buffer->get_directories().begin());
+    update_child_buffer(m_selected_dir.value());
+}
+
+// ---------------------- PUBLIC -------------------
+
 Explorer::Explorer(const std::string& current_dir):
     m_current_path(current_dir),    
     m_current_buffer(std::make_shared<Buffer>(m_current_path)) {
@@ -38,24 +60,6 @@ std::size_t Explorer::get_parent_dir_pos() const {
         ++curr_pos;
     }
     return curr_pos;
-}
-
-void Explorer::set_parent_buffer() {
-    if (m_current_path == m_current_path.parent_path()){ 
-        m_parent_buffer = nullptr;
-        return;
-    }
-    m_parent_buffer = std::make_shared<Buffer>(m_current_path.parent_path());
-}
-   
-void Explorer::set_child_buffer() {
-     if (!m_current_buffer->has_directories()) {
-        m_child_buffer = nullptr;
-        m_selected_dir = std::nullopt;
-        return;
-    }
-    m_selected_dir = *(m_current_buffer->get_directories().begin()); // getting the first directory
-    update_child_buffer(m_selected_dir.value());
 }
 
 void Explorer::update_child_buffer(const std::string& dir) {

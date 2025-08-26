@@ -7,8 +7,9 @@
 
 
 class Explorer {
+
 private:
- 
+
     fs::path m_current_path;
     std::optional<std::string> m_selected_dir;
     std::shared_ptr<Buffer> m_current_buffer;

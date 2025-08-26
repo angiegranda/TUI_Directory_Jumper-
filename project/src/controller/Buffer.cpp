@@ -17,8 +17,8 @@ void Buffer::fill_buffer(const fs::path& path){
                         m_directories.emplace_back(entry.path().filename().string());
                     }
                     else if (fs::is_regular_file(entry)) {
-                        std::ifstream test(entry.path(), std::ios::binary);
-                        if (test.is_open()) {
+                        std::ifstream file(entry.path(), std::ios::binary);
+                        if (file.is_open()) {
                             m_files.emplace_back(entry.path().filename().string());
                         }
                     }

@@ -1,47 +1,39 @@
 // 
 #include "UI.h"
-#include <cstdlib>
 #ifdef _WIN32
-    #include <conio.h>
+    #include <conio.h> // _getch()
     #define NOMINMAX
-    #include <windows.h>
+    #include <windows.h> // AttachConsole, GetStdHandle, CONSOLE_SCREEN_BUFFER_INFO, HANDLE, INVALID_HANDLE_VALUE
 #else
-    #include <csignal>
-    #include <sys/ioctl.h>
-    #include <termios.h>
-    #include <unistd.h>
+    #include <csignal> // std::signal
+    #include <sys/ioctl.h> // ioctl
+    #include <termios.h> // termios, tcgetattr, tcsetattr
+    #include <unistd.h> // isatty, STDIN_FILENO
 #endif 
-#include <fcntl.h>
 
-
+std::function<void()> UI::window_resize_handle;
 TerminalWriter UI::ts;
 #ifndef _WIN32
 struct termios UI::ot;
+#else
+WindowsResizeMonitor UI::wrm;
 #endif
 
-std::function<void()> UI::window_resize_handle;
-#ifdef _WIN32
-WindowsResizeMonitor UI::wrm;
-#endif 
 
 bool UI::init() {
-
 #ifdef _WIN32
     return true;
 #else
     if (!isatty(STDIN_FILENO)) {
         return false;
     }
-
     tcgetattr(STDIN_FILENO, &UI::ot); 
     struct termios nt = UI::ot;
     nt.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &nt);
-
     return UI::ts.get_initialization_state();
 #endif
 }
-
 
 void UI::set_window_resize_handler(std::function<void()> handle_window_resize) {
     window_resize_handle = handle_window_resize;
@@ -97,7 +89,6 @@ void UI::window_resize_handler() {
     }
 }
 #else
-//int sig is the signal number that triggered this function
 void UI::window_resize_handler([[maybe_unused]]int sig) {
     if (window_resize_handle) {
         window_resize_handle();

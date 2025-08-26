@@ -9,8 +9,16 @@ using Metrics_Tuple = std::tuple<std::size_t, std::size_t, std::size_t>;
 
 // CONTROLLER 
 
-constexpr std::size_t MAX_QUICK_ACCESS_ITEMS = 10;
+constexpr std::size_t MAX_QUICK_ACCESS_ITEMS = 30;
+constexpr char QUICK_ACCESS_PROJECT_FOLDER[] = "tcd";
 constexpr char QUICK_ACCESS_FILE[] = "quick_access.csv";
+
+
+// EXPECTED ENVIRONMENT VARIABLES
+constexpr char GLOBAL_ENV_PATH_POSIX1[] = "XDG_DATA_HOME";
+constexpr char GLOBAL_ENV_PATH_POSIX2[] = "HOME";
+constexpr char GLOBAL_ENV_PATH_WIND[] = "APPDATA";
+
 
 // FILE CONTENTS 
 
@@ -27,18 +35,17 @@ constexpr char CSV_SEPARATOR = ',';
 constexpr char STAR = '*';
 constexpr char SPACE = ' '; 
 
-// NAVEGATION HEADER AND FOOTER 
+// NAVIGATION HEADER AND FOOTER 
 
-constexpr char NAVEGATION_HEADER[] = "==== Navegation ===="; 
-constexpr char NAVEGATION_FOOTER1[] = "[q]-Quit [s]-Select [c]-Change to Quick Access";
-constexpr char NAVEGATION_FOOTER2[] = "[k]-Up [j]-Down [h]-Backward [l]-Forward"; 
-
+constexpr char NAVIGATION_HEADER[] = "==== Navigation ===="; 
+constexpr char NAVIGATION_FOOTER1[] = "[k]-Up  [j]-Down  [h]-Backward  [l]-Forward"; 
+constexpr char NAVIGATION_FOOTER2[] = "[q]-Quit [s]-Select [c]-Change to Quick Access";
 
 // QUICKACCESS HEADER AND FOOTER
 
 constexpr char QUICKACCESS_HEADER[] = "==== Quick Access ====";
-constexpr char QUICKACCESS_FOOTER1[] = "[q]-Quit  [s]-Select [x]-Clean";
-constexpr char QUICKACCESS_FOOTER2[] = "[c]-Change to Navegation [j]-down [k]-up";
+constexpr char QUICKACCESS_FOOTER1[] = "[j]-Down  [k]-Up  [x]-Clean";
+constexpr char QUICKACCESS_FOOTER2[] = "[q]-Quit  [s]-Select [c]-Change to Navigation";
 
 // QUICKACCESS 
 
@@ -53,11 +60,11 @@ constexpr char DIR_SHORTCUT[] = "..";
 constexpr std::size_t QUICKACCESS_RESERVED_LINES = 7; // 1 header, 2 footer, 2 between, 2 for correct visualization
 
 
-// NAVEGATION  
+// NAVIGATION  
 
-constexpr std::size_t NAVEGATION_RESERVED_LINES = 7;
+constexpr std::size_t NAVIGATION_RESERVED_LINES = 7;
 constexpr std::size_t BETWEEN_COLUMNS_SPACE = 2;
-constexpr std::size_t NAVEGATION_MIN_LINES = 10;
+constexpr std::size_t NAVIGATION_MIN_LINES = 10;
 constexpr double BINARY_HEURISTIC = 0.1;
 constexpr char DOTS[] = "...";
 #endif

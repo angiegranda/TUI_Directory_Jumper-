@@ -12,14 +12,17 @@ struct PathInfo {
 
 class QuickAccess {
     private:
-    std::string get_executable_directory();
+    fs::path m_file_path;
+    bool m_state;
+    void set_path();
+    PathInfo create_pathinfo(const std::string& data);
+    std::fstream open_file();
     public:
-    // m_total_visits == 0 iff m_data == 0 
-    const fs::path file_path;
-    std::size_t m_total_visits; // 0
-    std::vector<PathInfo> m_data; // empty  
+    std::size_t m_total_visits; 
+    std::vector<PathInfo> m_data;
     QuickAccess();
     void save_data();
+    bool get_state();
 };
 
 

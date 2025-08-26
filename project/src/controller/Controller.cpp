@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
-// ------------------------------ NAVEGATION ACTIONS --------------------------------
+// ------------ PRIVATE ------------------------------------------------------------
 
+
+// ------------------------------ NAVEGATION ACTIONS --------------------------------
 
 void Controller::update_dir_options() {
     auto buf = m_explorer.get_current_buffer();
@@ -37,7 +39,6 @@ void Controller::navegation_move_down() {
         if (m_curr_doc == DOC_TYPE::DIRECTORY) {
             std::string curr_selected_dir = m_explorer.get_current_buffer()->get_directories()[m_curr_pos];
             m_explorer.update_child_buffer(curr_selected_dir);
-            update_dir_options();
         }
     }
 }
@@ -50,10 +51,8 @@ void Controller::navegation_move_up() {
         if (m_curr_doc == DOC_TYPE::DIRECTORY) {
             std::string curr_selected_dir = m_explorer.get_current_buffer()->get_directories()[m_curr_pos];
             m_explorer.update_child_buffer(curr_selected_dir);
-            update_dir_options();
         }
     }
-   //std::cout << m_curr_options << " " << m_curr_pos << std::endl;
 }
 
 
@@ -80,17 +79,8 @@ void Controller::update_quick_list() {
         PathInfo p;
         p.m_path = m_output_path.string();
         p.m_visits.emplace_back(m_quick_access.m_total_visits);
-        m_quick_access.m_data.emplace_back(p);
+        m_quick_access.m_data.emplace_back(std::move(p));
     }
-}
-
-std::vector<std::string> Controller::quick_access_paths() {
-    std::vector<std::string> paths;
-    std::size_t max_num = std::min(MAX_QUICK_ACCESS_ITEMS, m_quick_access.m_data.size());
-    for (std::size_t idx = 0; idx < max_num; ++idx) {
-        paths.emplace_back(m_quick_access.m_data[idx].m_path);
-    }
-    return paths;
 }
 
 
@@ -98,20 +88,6 @@ std::vector<std::string> Controller::quick_access_paths() {
 // --------------------------- PROGRAM WORKFLOW -----------------------------
 
 
-Controller::Controller(): m_explorer(fs::current_path()) {
-    m_state = STATE::QUICKACCESS;
-    m_output_path = m_explorer.get_current_path();
-    m_curr_doc = m_explorer.get_child_buffer() == nullptr ? DOC_TYPE::FILE : DOC_TYPE::DIRECTORY;
-    m_curr_pos = 0;
-    m_list_pos = 0;
-}
-
-bool Controller::init() {
-    // for Windows executes a separate thread where the change of the size is constantly checked
-    // std::bind(&Controller::on_window_resize, this) is a way to wrap a member function (on_window_resize) of this particular object (this) into a callable function that can be stored and called later.
-    UI::set_window_resize_handler(std::bind(&Controller::on_window_resize, this));
-    return UI::init();
-}
 
 void Controller::program_loop() {
     char key;
@@ -129,10 +105,8 @@ void Controller::program_loop() {
     std::cout << m_output_path.string() << std::endl;
 }
 
-// true if continue else false;
 bool Controller::handle_navegation(char key) {
     bool stop = false;
-    update_dir_options(); 
     switch (key) {
         case 'q':
             stop = true;
@@ -169,7 +143,6 @@ bool Controller::handle_navegation(char key) {
 
 bool Controller::handle_quickaccess(char key) {
     bool stop = false;  
-    std::size_t max_num = std::min(MAX_QUICK_ACCESS_ITEMS, m_quick_access.m_data.size());
     switch(key) {
         case 'q': // quit
             stop = true;
@@ -179,12 +152,12 @@ bool Controller::handle_quickaccess(char key) {
             break;
         case 'j': // down
             if (!m_quick_access.m_data.empty()) {
-                m_list_pos = m_list_pos == max_num - 1 ? 0 : m_list_pos + 1;
+                m_list_pos = m_list_pos == m_quick_access_path - 1 ? 0 : m_list_pos + 1;
             }
             break;
         case 'k': // up
             if (!m_quick_access.m_data.empty()) {
-                m_list_pos = m_list_pos == 0 ? max_num - 1 : m_list_pos - 1;
+                m_list_pos = m_list_pos == 0 ? m_quick_access_path - 1 : m_list_pos - 1;
             }
             break;
         case 's': // select from the directories shown
@@ -210,15 +183,6 @@ void Controller::finish() {
     UI::finish();
 }
 
-void Controller::run()  {
-    bool success = init();
-    if (!success) {
-        return;
-    }
-    program_loop();
-    finish();
-}
-
 void Controller::render_window() {
     if (m_state == STATE::NAVEGATION) {
         n_view.render_window(
@@ -230,10 +194,44 @@ void Controller::render_window() {
             m_explorer.get_current_path());
     }
     else if (m_state == STATE::QUICKACCESS){ 
-        q_view.render_window(quick_access_paths(), m_list_pos);
+        q_view.render_window(m_quick_access.m_data, m_list_pos);
     }
 }
 
 void Controller::on_window_resize() {
     render_window();
+}
+
+bool Controller::init() {
+    // for Windows executes a separate thread where the change of the size is constantly checked
+    // std::bind(&Controller::on_window_resize, this) is a way to wrap a member function (on_window_resize) of this particular object (this) into a callable function that can be stored and called later.
+    UI::set_window_resize_handler(std::bind(&Controller::on_window_resize, this));
+    return UI::init() && m_quick_access.get_state();
+}
+
+
+
+
+// ---------------- PUBLIC -----------------------------------------------
+
+
+
+Controller::Controller(): m_explorer(fs::current_path()) {
+    m_state = STATE::QUICKACCESS;
+    m_output_path = m_explorer.get_current_path();
+    m_curr_doc = m_explorer.get_child_buffer() == nullptr ? DOC_TYPE::FILE : DOC_TYPE::DIRECTORY;
+    m_curr_pos = 0;
+    m_list_pos = 0;
+    m_quick_access_path = std::min(MAX_QUICK_ACCESS_ITEMS, m_quick_access.m_data.size());
+    update_dir_options(); 
+}
+
+void Controller::run()  {
+    std::cout << "\033[2J\033[H" << std::flush;
+    bool success = init();
+    if (!success) {
+        return;
+    }
+    program_loop();
+    finish();
 }

@@ -11,7 +11,7 @@ class QuickAccessView {
     std::string path_length_constraints(const std::string& path, const std::size_t width);
     std::string get_header_or_footer(const char* text, const std::size_t width);
     public: 
-    void render_window(std::vector<std::string> list, std::size_t pos); 
+    void render_window(const std::vector<PathInfo>& list, std::size_t pos); 
 };
 
 #endif

@@ -42,13 +42,16 @@ class NavegationView {
 
     std::vector<std::string> get_text_contents(fs::path file_path, const std::size_t width_, const std::size_t total_lines);
     void process_text(std::vector<std::string>& contents, const std::size_t width_, const std::size_t total_lines);
-    std::vector<std::tuple<std::string, bool, bool>> preprocess_contents(
+    
+    std::vector<std::string> preprocess_contents(
     const std::shared_ptr<Buffer> contents, 
     const std::size_t pos, 
     bool has_selected_dir,
     const std::size_t row_width, 
     const std::size_t total_lines);
-    std::string string_format(const std::tuple<std::string, bool, bool>& item);
+
+    void add_header(std::vector<std::string>& contents);
+    void add_footer(std::vector<std::string>& contents);
 
     public: 
 

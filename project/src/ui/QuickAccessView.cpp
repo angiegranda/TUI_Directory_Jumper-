@@ -1,12 +1,17 @@
 #include "QuickAccessView.h"
-#include <algorithm>
-#include <sstream>
-#include <stack>
-#include <cstring>
+#include "QuickAccess.h"
+#include <algorithm> // std::min
+#include <sstream> // ostringstream 
+#include <stack> 
+#include <cstring> // strlen
 
+// UPDATED
 std::string QuickAccessView::path_length_constraints(const std::string& path, const std::size_t width) {
+    std::string line;
+    line.reserve(width);
     if (path.size() < width) {
-        return path;
+        line.append(path);
+        return line.append(std::string(width - path.size(), SPACE));
     }
     std::stack<std::string> stack_;
     fs::path path_(path);
@@ -22,15 +27,13 @@ std::string QuickAccessView::path_length_constraints(const std::string& path, co
             is_enough = true;
         }
     }
-    std::string line;
-    line.reserve(width);
     line.append(DIR_SHORTCUT);
     while (!stack_.empty()) {
         line.append(SLASH);
         line.append(stack_.top());
         stack_.pop();
     }
-    line.append(std::string((width < line.size() ? 0 : width - line.size()),' '));
+    line.append(std::string((width < line.size() ? 0 : width - line.size()), SPACE));
     return line;
 }
 
@@ -46,25 +49,24 @@ std::string QuickAccessView::get_header_or_footer(const char* text, const std::s
     return line;
 }
 
-void QuickAccessView::render_window(std::vector<std::string> paths_list, std::size_t pos)  {
+void QuickAccessView::render_window(const std::vector<PathInfo>& paths, std::size_t pos)  {
     std::vector<std::string> contents_to_display;
     auto [width_, height_] = UI::get_terminal_size();
     std::size_t width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
     std::size_t height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
+
     contents_to_display.emplace_back(get_header_or_footer(QUICKACCESS_HEADER, width));
     std::string empty_line(width, SPACE);
     contents_to_display.emplace_back(empty_line);
     std::size_t usable_lines = height - QUICKACCESS_RESERVED_LINES; // CONSTANT 
-    std::size_t max_iter = std::min(paths_list.size(), usable_lines);
-    std::ostringstream oss;
+    std::size_t max_iter = std::min(paths.size(), usable_lines);
+    std::ostringstream oss; 
     for (std::size_t i = 0; i < max_iter; ++i) {
-        std::string path = paths_list[i];
-        oss.str(""); 
-        oss.clear();
-        std::string processed_path = path_length_constraints(path, width - PADDING);
+        oss.str("");
+        oss.clear();    
         oss << MAGENTA_TEXT_COLOR << BOLD_ON << (i == pos ? PALE_GREEN_HIGHLIGHT : "");
-        oss << SPACE << STAR << SPACE << processed_path << SPACE;
-        oss << RESET;
+        oss << SPACE << STAR << SPACE << path_length_constraints(paths[i].m_path, width - PADDING);
+        oss << SPACE << RESET;
         contents_to_display.emplace_back(oss.str());
     }
     std::size_t remaning_lines = usable_lines > max_iter ?  usable_lines - max_iter: 0;
