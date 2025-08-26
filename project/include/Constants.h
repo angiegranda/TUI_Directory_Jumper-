@@ -58,6 +58,6 @@ constexpr std::size_t QUICKACCESS_RESERVED_LINES = 7; // 1 header, 2 footer, 2 b
 constexpr std::size_t NAVEGATION_RESERVED_LINES = 7;
 constexpr std::size_t BETWEEN_COLUMNS_SPACE = 2;
 constexpr std::size_t NAVEGATION_MIN_LINES = 10;
-constexpr double BINARY_HEURISTIC = 0.1;\
+constexpr double BINARY_HEURISTIC = 0.1;
 constexpr char DOTS[] = "...";
 #endif
