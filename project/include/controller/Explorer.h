@@ -5,19 +5,26 @@
 #include <optional>
 #include <tuple>
 
+enum class DOC_TYPE { DIRECTORY, FILE };
+
+// TODO: std::bad_alloc
 
 class Explorer {
 
 private:
 
-    fs::path m_current_path;
-    std::optional<std::string> m_selected_dir;
+    DOC_TYPE m_curr_type;
+    fs::path m_displayed_path;
+    std::size_t m_curr_pos;
+    std::size_t m_curr_total_options;
     std::shared_ptr<Buffer> m_current_buffer;
     std::shared_ptr<Buffer> m_parent_buffer;
     std::shared_ptr<Buffer> m_child_buffer;
 
+    void init();
     void set_parent_buffer();
     void set_child_buffer();
+    std::shared_ptr<Buffer> create_buffer(const std::string& path);
 
 public:
 
@@ -28,13 +35,17 @@ public:
     inline const std::shared_ptr<Buffer> get_current_buffer() const {return m_current_buffer; }
     inline const std::shared_ptr<Buffer> get_child_buffer() const {return m_child_buffer; }
 
+
     std::size_t get_parent_dir_pos() const;
-    fs::path get_path_to_visit() const;
-    fs::path get_current_path() const;
+    fs::path get_valid_selected_dir() const;
+    fs::path get_curr_displayed_dir() const;
+    std::size_t get_curr_pos() const; 
 
     void move_foward(); 
     void move_backward(); 
-    void update_child_buffer(const std::string& selected_dir);
+    //void update_child_buffer(const std::string& selected_dir);
+    void move_down();
+    void move_up();
 
 };
 

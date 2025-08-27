@@ -40,6 +40,8 @@ constexpr char SPACE = ' ';
 constexpr char NAVIGATION_HEADER[] = "==== Navigation ===="; 
 constexpr char NAVIGATION_FOOTER1[] = "[k]-Up  [j]-Down  [h]-Backward  [l]-Forward"; 
 constexpr char NAVIGATION_FOOTER2[] = "[q]-Quit [s]-Select [c]-Change to Quick Access";
+constexpr char EMPTY_DIR_MESSAGE1[] = "Empty directory";
+constexpr char EMPTY_DIR_MESSAGE2[] = "Please move backward";
 
 // QUICKACCESS HEADER AND FOOTER
 
@@ -67,4 +69,6 @@ constexpr std::size_t BETWEEN_COLUMNS_SPACE = 2;
 constexpr std::size_t NAVIGATION_MIN_LINES = 10;
 constexpr double BINARY_HEURISTIC = 0.1;
 constexpr char DOTS[] = "...";
+constexpr std::size_t MIN_ASCII = 32;
+constexpr std::size_t MAX_ASCII = 127;
 #endif

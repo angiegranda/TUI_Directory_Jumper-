@@ -2,63 +2,7 @@
 #include "UI.h"
 #include <algorithm>
 #include <iostream>
-
-// ------------ PRIVATE ------------------------------------------------------------
-
-
-// ------------------------------ NAVEGATION ACTIONS --------------------------------
-
-void Controller::update_dir_options() {
-    auto buf = m_explorer.get_current_buffer();
-    m_curr_options = buf ? buf->get_directories().size() + buf->get_files().size() : 0;
-}
-
-void Controller::navegation_move_forward() {
-    if (m_curr_doc == DOC_TYPE::FILE || 
-        (m_explorer.get_child_buffer()->get_directories().size() + 
-        m_explorer.get_child_buffer()->get_files().size() == 0))
-        return;
-    m_explorer.move_foward();
-    update_dir_options();
-    m_curr_doc = m_explorer.get_child_buffer() == nullptr ? DOC_TYPE::FILE : DOC_TYPE::DIRECTORY; 
-    m_curr_pos = 0;
-}
-
-void Controller::navegation_move_backward() {
-    m_curr_pos = m_explorer.get_parent_dir_pos();
-    m_explorer.move_backward();
-    update_dir_options();
-    m_curr_doc = m_explorer.get_child_buffer() == nullptr ? DOC_TYPE::FILE : DOC_TYPE::DIRECTORY; 
-}
-
-void Controller::navegation_move_down() {
-    if (m_curr_options > 0) { // both FILEs and documents 
-        m_curr_pos = (m_curr_pos + 1) % m_curr_options;
-        std::size_t dirs_size = m_explorer.get_current_buffer()->get_directories().size();
-        m_curr_doc = m_curr_pos < dirs_size ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE;
-        if (m_curr_doc == DOC_TYPE::DIRECTORY) {
-            std::string curr_selected_dir = m_explorer.get_current_buffer()->get_directories()[m_curr_pos];
-            m_explorer.update_child_buffer(curr_selected_dir);
-        }
-    }
-}
-
-void Controller::navegation_move_up() {
-    if (m_curr_options > 0) {
-        m_curr_pos = (m_curr_pos == 0) ? m_curr_options - 1 : m_curr_pos - 1;
-        std::size_t dirs_size = m_explorer.get_current_buffer()->get_directories().size();
-        m_curr_doc = m_curr_pos < dirs_size ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE;
-        if (m_curr_doc == DOC_TYPE::DIRECTORY) {
-            std::string curr_selected_dir = m_explorer.get_current_buffer()->get_directories()[m_curr_pos];
-            m_explorer.update_child_buffer(curr_selected_dir);
-        }
-    }
-}
-
-
-// ------------------------------ QUICKACCESS ACTIONS --------------------------------
-
-
+#include <stdexcept> // catch and finish the program  
 
 void Controller::update_quick_list() {
     ++m_quick_access.m_total_visits;
@@ -83,12 +27,6 @@ void Controller::update_quick_list() {
     }
 }
 
-
-
-// --------------------------- PROGRAM WORKFLOW -----------------------------
-
-
-
 void Controller::program_loop() {
     char key;
     bool stop = false;
@@ -107,36 +45,36 @@ void Controller::program_loop() {
 
 bool Controller::handle_navegation(char key) {
     bool stop = false;
-    switch (key) {
+    try {
+        switch (key) {
         case 'q':
             stop = true;
             break;
         case 'h': // left
-            navegation_move_backward();
+            m_explorer.move_backward();
             break;
         case 'l': // right
-            navegation_move_forward();
+            m_explorer.move_foward();
             break;
         case 'j': // down
-            navegation_move_down();
+            m_explorer.move_down();
             break;
         case 'k': // up
-            navegation_move_up();
+            m_explorer.move_up();
             break;
         case 'c':
             m_state = STATE::QUICKACCESS;
             break;
         case 's': // select
-            if (m_curr_doc == DOC_TYPE::FILE) {
-                m_output_path = m_explorer.get_current_path();
-            } else {
-                m_output_path = m_explorer.get_path_to_visit();
-            }
+            m_output_path = m_explorer.get_valid_selected_dir();
             update_quick_list();
             stop = true;
             break;
         default:
             break;
+        }
+    } catch (const std::runtime_error& e) {
+        stop = true;
     }
     return stop;
 }
@@ -152,12 +90,12 @@ bool Controller::handle_quickaccess(char key) {
             break;
         case 'j': // down
             if (!m_quick_access.m_data.empty()) {
-                m_list_pos = m_list_pos == m_quick_access_path - 1 ? 0 : m_list_pos + 1;
+                m_list_pos = m_list_pos == m_total_quick_access_paths - 1 ? 0 : m_list_pos + 1;
             }
             break;
         case 'k': // up
             if (!m_quick_access.m_data.empty()) {
-                m_list_pos = m_list_pos == 0 ? m_quick_access_path - 1 : m_list_pos - 1;
+                m_list_pos = m_list_pos == 0 ? m_total_quick_access_paths - 1 : m_list_pos - 1;
             }
             break;
         case 's': // select from the directories shown
@@ -190,8 +128,9 @@ void Controller::render_window() {
             m_explorer.get_current_buffer(),
             m_explorer.get_child_buffer(),
             m_explorer.get_parent_dir_pos(),
-            m_curr_pos,
-            m_explorer.get_current_path());
+            m_explorer.get_curr_pos(),
+            m_explorer.get_curr_displayed_dir()
+        );
     }
     else if (m_state == STATE::QUICKACCESS){ 
         q_view.render_window(m_quick_access.m_data, m_list_pos);
@@ -209,21 +148,11 @@ bool Controller::init() {
     return UI::init() && m_quick_access.get_state();
 }
 
-
-
-
-// ---------------- PUBLIC -----------------------------------------------
-
-
-
 Controller::Controller(): m_explorer(fs::current_path()) {
     m_state = STATE::QUICKACCESS;
-    m_output_path = m_explorer.get_current_path();
-    m_curr_doc = m_explorer.get_child_buffer() == nullptr ? DOC_TYPE::FILE : DOC_TYPE::DIRECTORY;
-    m_curr_pos = 0;
+    m_output_path = m_explorer.get_curr_displayed_dir();
     m_list_pos = 0;
-    m_quick_access_path = std::min(MAX_QUICK_ACCESS_ITEMS, m_quick_access.m_data.size());
-    update_dir_options(); 
+    m_total_quick_access_paths = std::min(MAX_QUICK_ACCESS_ITEMS, m_quick_access.m_data.size());
 }
 
 void Controller::run()  {

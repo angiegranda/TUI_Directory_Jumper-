@@ -17,7 +17,7 @@ set(SOURCES
     src/ui/TerminalWriter.cpp 
     src/controller/QuickAccess.cpp
     src/ui/QuickAccessView.cpp
-    src/ui/NavegationView.cpp
+    src/ui/NavigationView.cpp
     src/Main.cpp
 )
 

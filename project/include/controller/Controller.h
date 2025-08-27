@@ -2,43 +2,29 @@
 #define _CFD_CONTROLLER_H_
 #include "Explorer.h"
 #include "QuickAccess.h"
-#include "NavegationView.h"
+#include "NavigationView.h"
 #include "QuickAccessView.h"
 
-enum class DOC_TYPE { DIRECTORY, FILE };
 enum class STATE { NAVEGATION, QUICKACCESS, ARGS_FAILURE};
 
 class Controller {
 
 private:
 
-    DOC_TYPE m_curr_doc;
     STATE m_state;
-
-    // Navegation members 
-    Explorer m_explorer;
     fs::path m_output_path;
-    std::size_t m_curr_options;
-    std::size_t m_curr_pos;
+
+    // Navigation members 
+    Explorer m_explorer;
     NavegationView n_view;
 
     // QuickAccess members;
     QuickAccess m_quick_access;
-    std::size_t m_list_pos;
     QuickAccessView q_view;
-    std::size_t m_quick_access_path;
+    std::size_t m_list_pos;
+    std::size_t m_total_quick_access_paths;
 
-    void parse_args(int argc, char* argv[]);
     void render_window();
-
-    // NAVEGATION
-    void update_dir_options();
-    void navegation_move_forward(); 
-    void navegation_move_backward();
-    void navegation_move_down();
-    void navegation_move_up();
-
-    // QUICKACCESS
     void update_quick_list();
 
     // PROGRAM
