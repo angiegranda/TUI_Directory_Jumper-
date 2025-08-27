@@ -123,7 +123,7 @@ void Controller::finish() {
 
 void Controller::render_window() {
     if (m_state == STATE::NAVEGATION) {
-        n_view.render_window(
+        NavegationView::render_window(
             m_explorer.get_parent_buffer(),
             m_explorer.get_current_buffer(),
             m_explorer.get_child_buffer(),
@@ -133,7 +133,7 @@ void Controller::render_window() {
         );
     }
     else if (m_state == STATE::QUICKACCESS){ 
-        q_view.render_window(m_quick_access.m_data, m_list_pos);
+        QuickAccessView::render_window(m_quick_access.m_data, m_list_pos);
     }
 }
 
@@ -156,7 +156,7 @@ Controller::Controller(): m_explorer(fs::current_path()) {
 }
 
 void Controller::run()  {
-    //std::cout << "\033[2J\033[H" << std::flush;
+    std::cerr << "\033[2J\033[H" << std::flush;
     bool success = init();
     if (!success) {
         return;

@@ -3,6 +3,9 @@
 #include <cstring>
 #include <sstream> // ostringstream 
 
+std::size_t NavegationView::width;
+std::size_t NavegationView::height;
+
 void NavegationView::render_window(
     const std::shared_ptr<Buffer> left_contents,
     const std::shared_ptr<Buffer> middle_contents,
@@ -12,8 +15,8 @@ void NavegationView::render_window(
     const fs::path& current_path) 
     {
     auto [width_, height_] = UI::get_terminal_size(); // implicit conversion from int to size_t
-    width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
-    height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
+    NavegationView::width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
+    NavegationView::height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
 
     if ((middle_contents->get_directories().size() + 
         middle_contents->get_files().size()) == 0) { 
@@ -68,10 +71,10 @@ std::string NavegationView::get_header_or_footer(const char* text, const std::si
 }
 
 Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
-    std::size_t total_usable_lines = std::max<std::size_t>(NAVIGATION_MIN_LINES - NAVIGATION_RESERVED_LINES, height - NAVIGATION_RESERVED_LINES);
+    std::size_t total_usable_lines = std::max<std::size_t>(NAVIGATION_MIN_LINES - NAVIGATION_RESERVED_LINES, NavegationView::height - NAVIGATION_RESERVED_LINES);
     std::size_t total_pad = column_number * BETWEEN_COLUMNS_SPACE; //
 
-    std::size_t usable_width = std::max<std::size_t>(MIN_TERMINAL_WIDTH - total_pad, width - total_pad); 
+    std::size_t usable_width = std::max<std::size_t>(MIN_TERMINAL_WIDTH - total_pad, NavegationView::width - total_pad);
     std::size_t base_width = usable_width / column_number;
     std::size_t remainder  = usable_width % column_number;
 
@@ -202,14 +205,14 @@ std::vector<std::string> NavegationView::preprocess_contents(
 }
 
 void NavegationView::add_header(std::vector<std::string>& contents_to_display) {
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_HEADER, width));
-    contents_to_display.emplace_back(std::string(width, SPACE));
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_HEADER, NavegationView::width));
+    contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
 }
 
 void NavegationView::add_footer(std::vector<std::string>& contents_to_display) {
-    contents_to_display.emplace_back(std::string(width, SPACE));
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER1, width));
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER2, width));
+    contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER1, NavegationView::width));
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER2, NavegationView::width));
 }
 
 std::vector<std::string> NavegationView::prepare_contents(

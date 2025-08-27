@@ -24,7 +24,7 @@ private:
     void init();
     void set_parent_buffer();
     void set_child_buffer();
-    std::shared_ptr<Buffer> create_buffer(const std::string& path);
+    std::shared_ptr<Buffer> create_buffer(const fs::path& path);
 
 public:
 

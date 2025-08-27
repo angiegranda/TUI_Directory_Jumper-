@@ -3,7 +3,7 @@
 
 // ---------------------- PRIVATE -------------------
 
-std::shared_ptr<Buffer> Explorer::create_buffer(const std::string& path) {
+std::shared_ptr<Buffer> Explorer::create_buffer(const fs::path& path) {
     try {
         return std::make_shared<Buffer>(path);
     } catch (const std::bad_alloc& e) {

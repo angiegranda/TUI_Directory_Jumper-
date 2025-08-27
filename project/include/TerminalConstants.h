@@ -31,6 +31,7 @@ constexpr char PALE_GREEN_HIGHLIGHT[] = "\033[102m";
 
 // --------------- CURSORS CODES --------------- 
 
+
 constexpr char MOVE_CURSOR_DOWN[] = "\x1b[1B";
 constexpr char MOVE_CURSOR_UP_PART1[] = "\x1b[";
 constexpr char MOVE_CURSOR_UP_PART2[] = "A";

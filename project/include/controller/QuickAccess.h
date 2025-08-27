@@ -7,7 +7,7 @@
 struct PathInfo {
     std::string m_path;
     std::vector<std::size_t> m_visits;
-    double m_score;
+    double m_score = 0.0;
 };
 
 class QuickAccess {

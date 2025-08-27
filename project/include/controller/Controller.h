@@ -16,11 +16,9 @@ private:
 
     // Navigation members 
     Explorer m_explorer;
-    NavegationView n_view;
 
     // QuickAccess members;
     QuickAccess m_quick_access;
-    QuickAccessView q_view;
     std::size_t m_list_pos;
     std::size_t m_total_quick_access_paths;
 
