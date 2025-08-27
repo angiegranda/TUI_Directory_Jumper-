@@ -29,7 +29,7 @@ void Explorer::set_child_buffer() {
 
 void Explorer::init() {
     m_curr_pos = 0;
-    m_curr_type = m_current_buffer->has_directories() ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE;
+    m_curr_type = m_current_buffer->has_directories() ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE_ENTRY;
     m_curr_total_options = m_current_buffer->get_directories().size() + m_current_buffer->get_files().size();
     set_parent_buffer();
     set_child_buffer();
@@ -70,7 +70,7 @@ fs::path Explorer::get_curr_displayed_dir() const {
 }
 
 fs::path Explorer::get_valid_selected_dir() const {
-    if (m_curr_type == DOC_TYPE::FILE) { 
+    if (m_curr_type == DOC_TYPE::FILE_ENTRY) {
         return m_displayed_path;
     }
     return m_displayed_path / m_current_buffer->get_directories()[m_curr_pos];
@@ -81,7 +81,7 @@ std::size_t Explorer::get_curr_pos() const {
 }
 
 void Explorer::move_foward() {
-    if  (m_curr_type == DOC_TYPE::FILE || m_child_buffer == nullptr ||
+    if  (m_curr_type == DOC_TYPE::FILE_ENTRY || m_child_buffer == nullptr ||
         (m_child_buffer != nullptr && 
         m_child_buffer->get_files().size() + m_child_buffer->get_directories().size() == 0)) {
         return;
@@ -92,7 +92,7 @@ void Explorer::move_foward() {
     m_displayed_path = m_displayed_path / next_doc;
     m_curr_total_options = m_current_buffer->get_directories().size() + m_current_buffer->get_files().size();
     m_curr_pos = 0;
-    m_curr_type = m_current_buffer->has_directories() ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE;
+    m_curr_type = m_current_buffer->has_directories() ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE_ENTRY;
     set_child_buffer(); 
 }
 
@@ -120,7 +120,7 @@ void Explorer::move_down() {
             std::string doc = m_current_buffer->get_directories()[m_curr_pos];
             m_child_buffer = create_buffer(m_displayed_path / doc);
         } else {
-            m_curr_type = DOC_TYPE::FILE;
+            m_curr_type = DOC_TYPE::FILE_ENTRY;
             m_child_buffer = nullptr;
         }
     }
@@ -130,13 +130,13 @@ void Explorer::move_up() {
     if (m_curr_total_options > 0) { 
         m_curr_pos = (m_curr_pos == 0) ? m_curr_total_options - 1 : m_curr_pos - 1;
         std::size_t dirs_size = m_current_buffer->get_directories().size();
-        m_curr_type = m_curr_pos < dirs_size ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE;
+        m_curr_type = m_curr_pos < dirs_size ? DOC_TYPE::DIRECTORY : DOC_TYPE::FILE_ENTRY;
         if (m_curr_pos < dirs_size) {
             m_curr_type = DOC_TYPE::DIRECTORY; 
             std::string doc = m_current_buffer->get_directories()[m_curr_pos];
             m_child_buffer = create_buffer(m_displayed_path / doc);
         } else {
-            m_curr_type = DOC_TYPE::FILE;
+            m_curr_type = DOC_TYPE::FILE_ENTRY;
             m_child_buffer = nullptr;
         }
     }

@@ -5,7 +5,7 @@
 #include <optional>
 #include <tuple>
 
-enum class DOC_TYPE { DIRECTORY, FILE };
+enum class DOC_TYPE { DIRECTORY, FILE_ENTRY };
 
 // TODO: std::bad_alloc
 
