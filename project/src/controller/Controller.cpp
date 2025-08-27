@@ -160,7 +160,10 @@ void Controller::run()  {
     if (!success) {
         return;
     }
-    UI::clear_command();
+#ifdef _WIN32
+    std::cerr << CLEAR_WINDOWS_COMMAND_LINE << std::flush();
+    // or try UI::clear_command();
+#endif
     program_loop();
     finish();
 }

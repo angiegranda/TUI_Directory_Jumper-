@@ -12,7 +12,7 @@ using Metrics_Tuple = std::tuple<std::size_t, std::size_t, std::size_t>;
 constexpr std::size_t MAX_QUICK_ACCESS_ITEMS = 30;
 constexpr char QUICK_ACCESS_PROJECT_FOLDER[] = "tcd";
 constexpr char QUICK_ACCESS_FILE[] = "quick_access.csv";
-
+constexpr char CLEAR_WINDOWS_COMMAND_LINE[] = "\033[2J\033[H";
 
 // EXPECTED ENVIRONMENT VARIABLES
 constexpr char GLOBAL_ENV_PATH_POSIX1[] = "XDG_DATA_HOME";
