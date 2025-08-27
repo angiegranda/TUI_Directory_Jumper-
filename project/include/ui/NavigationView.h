@@ -17,28 +17,28 @@ class NavegationView {
     // render window helpers 
 
     static void prepare_two_window_display(
-        const std::shared_ptr<Buffer> left_buffer,
-        const std::shared_ptr<Buffer> right_buffer, 
-        const std::size_t current_pos, 
-        const fs::path& current_path);
+    const std::shared_ptr<Buffer> left_buffer,
+    const std::shared_ptr<Buffer> right_buffer, 
+    const std::size_t current_pos, 
+    const fs::path& current_path);
 
     static void prepare_display_three_windows(
-        const std::shared_ptr<Buffer> left_buffer,
-        const std::size_t parent_pos);
+    const std::shared_ptr<Buffer> left_buffer,
+    const std::size_t parent_pos);
 
     static void prepare_display_three_windows(
-        const std::shared_ptr<Buffer> left_buffer, 
-        const std::shared_ptr<Buffer> middle_buffer, 
-        const std::size_t parent_pos, 
-        const std::size_t current_pos, 
-        const fs::path& current_path);
+    const std::shared_ptr<Buffer> left_buffer, 
+    const std::shared_ptr<Buffer> middle_buffer, 
+    const std::size_t parent_pos, 
+    const std::size_t current_pos, 
+    const fs::path& current_path);
 
     static void prepare_display_three_windows(
-        const std::shared_ptr<Buffer> left_buffer, 
-        const std::shared_ptr<Buffer> middle_buffer, 
-        const std::shared_ptr<Buffer> right_buffer, 
-        const std::size_t parent_pos, 
-        const std::size_t current_pos);
+    const std::shared_ptr<Buffer> left_buffer, 
+    const std::shared_ptr<Buffer> middle_buffer, 
+    const std::shared_ptr<Buffer> right_buffer, 
+    const std::size_t parent_pos, 
+    const std::size_t current_pos);
     
     static std::vector<std::string> prepare_contents(
     const std::vector<std::string>& right_contents, 
@@ -62,11 +62,11 @@ class NavegationView {
     static void process_text(std::vector<std::string>& contents, const std::size_t width_, const std::size_t total_lines);
     
     static std::vector<std::string> preprocess_contents(
-    static const std::shared_ptr<Buffer> contents, 
-    static const std::size_t pos, 
-    static bool has_selected_dir,
-    static const std::size_t row_width, 
-    static const std::size_t total_lines);
+    const std::shared_ptr<Buffer> contents, 
+    const std::size_t pos, 
+    bool has_selected_dir,
+    const std::size_t row_width, 
+    const std::size_t total_lines);
 
     public: 
 
