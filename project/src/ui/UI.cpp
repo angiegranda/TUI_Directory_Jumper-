@@ -113,3 +113,9 @@ void UI::finish() {
     tcsetattr(STDIN_FILENO, TCSANOW, &UI::ot);
 #endif
 }
+
+void UI::clear_command() {
+    UI::ts.move_cursor_up(1);
+    UI::ts.erase_line();
+    UI::ts.flush();
+}

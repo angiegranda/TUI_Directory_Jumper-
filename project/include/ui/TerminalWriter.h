@@ -26,9 +26,6 @@ private:
     void enableAnsiOnWindows();
 #endif
 
-    void move_cursor_up(size_t lines);
-    void erase_line();
-
 public:
 
     TerminalWriter();
@@ -37,6 +34,8 @@ public:
     void flush();
     void clear_app_output();
     bool get_initialization_state();
+    void move_cursor_up(size_t lines);
+    void erase_line();
 };
 
 #endif 

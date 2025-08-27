@@ -83,5 +83,5 @@ void TerminalWriter::move_cursor_up(size_t lines) {
 }
 
 void TerminalWriter::erase_line() {
-    (*m_out) << ERASE_LINE_CURSOR;
+    (*m_out) <<ERASE_LINE_CURSOR;
 }

@@ -33,6 +33,7 @@ public:
     static void clean_window();
     static void start_resize_monitor();
     static void finish();
+    static void clear_command();
 };
 
 #endif 

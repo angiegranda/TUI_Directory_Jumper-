@@ -156,11 +156,11 @@ Controller::Controller(): m_explorer(fs::current_path()) {
 }
 
 void Controller::run()  {
-    std::cerr << "\033[2J\033[H" << std::flush;
     bool success = init();
     if (!success) {
         return;
     }
+    UI::clear_command();
     program_loop();
     finish();
 }
