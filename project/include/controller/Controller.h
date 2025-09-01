@@ -21,7 +21,7 @@ enum class STATE { NAVEGATION, QUICKACCESS};
  * @details 
  * - Initializes members and checks that UI and quick access read/write files are accessible. 
  * If not then the program will not start.
- * - Receives the key inputs from the user and process which action is chosen (if any) depending on the controller state.
+ * - Receives the key inputs from the user and processes the chosen action depending on the controller state.
  * - Manages a state which can switch back-and-forth from displaying navigation and quickaccess.
  * - Closes the streams. 
  * - If there was an exception std::bad_alloc then it closes the program immediately.
