@@ -2,13 +2,15 @@
 #include <stdexcept>
 
 /**
- * @brief Given a path, a buffer is created. If std::bad_alloc then throws a runtime exception catched at Controller. 
+ * @brief Given a path, it creates a buffer.
+ * @param path filesystem path.
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation. Controller will catch it. 
  */
 std::shared_ptr<Buffer> Explorer::create_buffer(const fs::path& path) {
     try {
         return std::make_shared<Buffer>(path);
     } catch (const std::bad_alloc& e) {
-        throw std::runtime_error("Could not allocate dynamically, run out of memory");
+        throw;
     }
 }
 
@@ -18,6 +20,7 @@ std::shared_ptr<Buffer> Explorer::create_buffer(const fs::path& path) {
  * - If current path is equal to parent path, then we are at root.
  * - Else, then a buffer is created with the parent path. 
  * - This is used at initialization and backward move.
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 void Explorer::set_parent_buffer() {
     if (m_displayed_path == m_displayed_path.parent_path()){ 
@@ -33,6 +36,7 @@ void Explorer::set_parent_buffer() {
  * - If the current document type is `FILE_ENTRY`, set the child buffer to nullptr.
  * - If it is a directory, create a buffer for the directory at the current cursor position (`m_curr_pos`).
  * - This is used at initialization and when moving forward.
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 void Explorer::set_child_buffer() {
     if (m_curr_type == DOC_TYPE::DIRECTORY) {
@@ -60,7 +64,11 @@ void Explorer::init() {
 }
 
 /**
- * @brief Constructor with a specific path. Used mostly for debugging since the program needs the path from where it is being called.
+ * @brief Constructor with a specific path. 
+ * @details 
+ * - the string can be used as a parameter of a filesystem::path object.
+ * - Used mostly for debugging since the program needs the path from where it is being called.
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 Explorer::Explorer(const std::string& current_dir):
     m_displayed_path(current_dir),    
@@ -73,6 +81,7 @@ Explorer::Explorer(const std::string& current_dir):
  * @details
  * - `m_displayed_path` is the path's contents shown in the middle column. The middle column for $SOME_PATH will contain $SOME_PATH/file.txt (if it exists).
  * - `m_current_buffer` contains the directories and files of the middle column which is the one the user interacts with.
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 Explorer::Explorer(fs::path current_path):
     m_displayed_path(current_path),
@@ -173,6 +182,7 @@ void Explorer::move_backward() {
  * Advances the current position by one in the list of directories and files,
  * wrapping around when reaching the end. Updates the type (directory or file)
  * and prepares a new child buffer. 
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 void Explorer::move_down() {
     if (m_curr_total_options > 0) { 
@@ -195,6 +205,7 @@ void Explorer::move_down() {
  * Decrements the current position in the list of directories and files,
  * wrapping around to the last entry if at the beginning. Updates the type
  * (directory or file) and refreshes the child buffer. 
+ * @throws std::bad_alloc if there is not enough memory for dynamic allocation.
  */
 void Explorer::move_up() {
     if (m_curr_total_options > 0) { 
