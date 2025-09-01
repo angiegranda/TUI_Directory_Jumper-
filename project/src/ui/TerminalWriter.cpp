@@ -32,7 +32,7 @@ void TerminalWriter::enable_ansi_on_windows() {
  */ 
 TerminalWriter::TerminalWriter() {
 #ifdef _WIN32
-    enableAnsiOnWindows();
+    enable_ansi_on_windows();
     m_fileStream.open(WINDOWS_OUTPUT_FILE);
     if (!m_fileStream.is_open()) {
         m_stream_state = false;
