@@ -30,7 +30,7 @@ cd "$(/PATH/project/build/dev/tcd)" || echo "Invalid path"
 1. First check if you have a `$PROFILE` file already with this command: `Test-Path $PROFILE`.   
 It will return false if it doesnt exist or true if it does. 
 2. If false, create the file: `New-Item -Path $PROFILE -ItemType File -Force`.
-3. Run: ```notepad $PROFILE```.  
+3. Run: `notepad $PROFILE`.  
 Inside $PROFILE write and save:   
 2. Add and save this inside the file:  
 ```
@@ -44,8 +44,8 @@ function program_name {
     }
 }
 ```
-3. Update the changes: ```. $PROFILE```.  
-4. Call ```program_name``` from anywhere to run the program.  
+3. Update the changes: `. $PROFILE`.  
+4. Call `program_name` from anywhere to run the program.  
 
 ## User Documentation 
 
@@ -56,27 +56,27 @@ You’ll need to build the program unless you’ve already downloaded the execut
 The program starts in Quick Access, which shows paths you’ve visited most often or recently. The more you use it, the better it gets at suggesting relevant paths.
 
 The actions are:  
-1. [j] Move cursor down and [k] up thorough the top paths by relevance order.  
-2. [c] Switch to Navigation mode to pick a directory manually.  
-3. [x] Clear history (start fresh with suggestions).  
-3. [s] Select a suggested path.  
-4. [q] Quit – returns you to the directory where you launched the program (doesn’t affect history) 
+1. [`j`] Move cursor down and [`k`] up thorough the top paths by relevance order.  
+2. [`c`] Switch to Navigation mode to pick a directory manually.  
+3. [`x`] Clear history (start fresh with suggestions).  
+3. [`s`] Select a suggested path.  
+4. [`q`] Quit – returns you to the directory where you launched the program (doesn’t affect history). 
 
 **Navigation View**
 
 This lets you manually browse directories and preview text files.
 
 The actions are:
-1. [j] Move down and [k] up the cursor in the current directory
-2. [c] Change to Quick Access
-3. [h] Go up to the parent directory
-4. [l] Enter the selected directory (only works if it’s a directory)
-5. [s] Selects the file/directory the cursor is on.
-6. [q] Quit – stays in the directory where the program was launched
+1. [`j`] Move down and [`k`] up the cursor in the current directory.  
+2. [`c`] Change to Quick Access. 
+3. [`h`] Go up to the parent directory. 
+4. [`l`] Enter the selected directory (only works if it’s a directory). 
+5. [`s`] Selects the file/directory the cursor is on.
+6. [`q`] Quit – stays in the directory where the program was launched. 
 
 **Modifiable settings at Constants.h and TerminalConstants.h**
-- ```MAX_QUICK_ACCESS_ITEMS``` set to display up to 30 top paths, can be changed, the final amounts depends on the visible screen and the maximum number of top paths.
-- For Windows: ```WINDOWS_TERMINAL_WIDTH``` (90) and ```WINDOWS_TERMINAL_HEIGHT``` (30) can be set to be different values.
+- `MAX_QUICK_ACCESS_ITEMS` set to display up to 30 top paths, can be changed, the final amounts depends on the visible screen and the maximum number of top paths.
+- For Windows: `WINDOWS_TERMINAL_WIDTH` (90) and `WINDOWS_TERMINAL_HEIGHT` (30) can be set to be different values.
 - Text colors and highlights can also be changed in TerminalConstants. 
 The colors are thought to work well on dark mode since it is the most popular mode used by terminal users.
 
@@ -123,4 +123,4 @@ This project uses [Doxygen](https://www.doxygen.nl) to generate API documentatio
     - On Mac/Linux: `brew install graphviz`  
 
 3. To generate the documentation, run:  
-```doxygen Doxyfile```. 
+`doxygen Doxyfile`. 
