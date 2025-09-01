@@ -157,12 +157,12 @@ void Controller::finish() {
 
 /**
  * @brief Depending on the state it choses the appropiate `render_window` function to display the output.
- * @see NavegationView::render_window
+ * @see NavigationView::render_window
  * @see QuickAccessView::render_window 
  */
 void Controller::render_window() {
     if (m_state == STATE::NAVEGATION) {
-        NavegationView::render_window(
+        NavigationView::render_window(
             m_explorer.get_parent_buffer(),
             m_explorer.get_current_buffer(),
             m_explorer.get_child_buffer(),

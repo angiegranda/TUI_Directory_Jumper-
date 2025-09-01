@@ -15,7 +15,7 @@
 #include "Explorer.h"
 
 /**
- * @class NavegationView
+ * @class NavigationView
  * @brief Process the contents of buffers and text files for rendering in the UI.
  * @details
  * - Based on the state of the smart shared pointers to buffer it will handle the how many columns to display 
@@ -33,7 +33,7 @@
  * @see Constants.h
  */
 
-class NavegationView {
+class NavigationView {
 
     private:
 

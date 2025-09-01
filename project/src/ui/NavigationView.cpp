@@ -6,11 +6,11 @@
 /**
  * @brief Static terminal width parameter changed every time @ref render_window is called. 
  */
-std::size_t NavegationView::width;
+std::size_t NavigationView::width;
 /**
  * @brief Static terminal height parameter changed every time @ref render_window is called. 
  */
-std::size_t NavegationView::height;
+std::size_t NavigationView::height;
 
 /**
  * @brief Renders the navigation window with parent, current, and child buffers.
@@ -28,7 +28,7 @@ std::size_t NavegationView::height;
  * @param current_pos Current selection index in the current buffer.
  * @param current_path Path to the current directory.
  */
-void NavegationView::render_window(
+void NavigationView::render_window(
     const std::shared_ptr<Buffer> left_contents,
     const std::shared_ptr<Buffer> middle_contents,
     const std::shared_ptr<Buffer> right_contents,
@@ -37,29 +37,29 @@ void NavegationView::render_window(
     const fs::path& current_path) 
     {
     auto [width_, height_] = UI::get_terminal_size(); // implicit conversion from int to size_t
-    NavegationView::width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
-    NavegationView::height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
+    NavigationView::width  = std::max<std::size_t>(MIN_TERMINAL_WIDTH, width_);
+    NavigationView::height = std::max<std::size_t>(MIN_TERMINAL_HEIGHT, height_);
 
     if ((middle_contents->get_directories().size() + 
         middle_contents->get_files().size()) == 0) { 
         // The app was launched from an empty directory, error message in the middle so the user moves back
-        NavegationView::prepare_display_three_windows(
+        NavigationView::prepare_display_three_windows(
         left_contents, parent_pos);
     }
 
     else if (left_contents == nullptr) { 
         // Current directory is root, manages also the case that there exist a file in the rooT
-        NavegationView::prepare_two_window_display(
+        NavigationView::prepare_two_window_display(
         middle_contents, right_contents, current_pos, current_path);
     }
     else if (right_contents == nullptr) {
         // Display data from the delected file at the current directory 
-        NavegationView::prepare_display_three_windows( 
+        NavigationView::prepare_display_three_windows( 
         left_contents, middle_contents, parent_pos, current_pos, current_path);
     }
     else { 
         //Parent, current and child (next) are all directories
-        NavegationView::prepare_display_three_windows(
+        NavigationView::prepare_display_three_windows(
         left_contents, middle_contents, right_contents, parent_pos, current_pos);
     }
 }
@@ -70,7 +70,7 @@ void NavegationView::render_window(
  * @param width_ Width of the line.
  * @return A formatted string padded with spaces and ANSI escape codes.
  */
-std::string NavegationView::get_header_or_footer(const char* text, const std::size_t width_) {
+std::string NavigationView::get_header_or_footer(const char* text, const std::size_t width_) {
     std::size_t remaning_spaces = width_ > std::strlen(text) ? width_ - std::strlen(text) : 0;
     std::size_t corner_spaces = remaning_spaces / 2;
     std::size_t remainder = remaning_spaces % 2;
@@ -90,11 +90,11 @@ std::string NavegationView::get_header_or_footer(const char* text, const std::si
  * @param column_number Number of columns to display, either 2 or 3.
  * @return A tuple of (usable_lines, base_width, remainder).
  */
-Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
-    std::size_t total_usable_lines = std::max<std::size_t>(NAVIGATION_MIN_LINES - NAVIGATION_RESERVED_LINES, NavegationView::height - NAVIGATION_RESERVED_LINES);
+Metrics_Tuple NavigationView::get_metrics(const std::size_t column_number) {
+    std::size_t total_usable_lines = std::max<std::size_t>(NAVIGATION_MIN_LINES - NAVIGATION_RESERVED_LINES, NavigationView::height - NAVIGATION_RESERVED_LINES);
     std::size_t total_pad = column_number * BETWEEN_COLUMNS_SPACE; //
 
-    std::size_t usable_width = std::max<std::size_t>(MIN_TERMINAL_WIDTH - total_pad, NavegationView::width - total_pad);
+    std::size_t usable_width = std::max<std::size_t>(MIN_TERMINAL_WIDTH - total_pad, NavigationView::width - total_pad);
     std::size_t base_width = usable_width / column_number;
     std::size_t remainder  = usable_width % column_number;
 
@@ -112,7 +112,7 @@ Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
  * @param width_ Column width.
  * @param total_lines Number of lines to fill.
  */
-void NavegationView::process_text(std::vector<std::string>& contents, 
+void NavigationView::process_text(std::vector<std::string>& contents, 
     const std::size_t width_, const std::size_t total_lines) {
 
     std::string empty_line(width_, SPACE);
@@ -163,7 +163,7 @@ void NavegationView::process_text(std::vector<std::string>& contents,
  * @param total_lines Number of lines to display.
  * @return Vector of processed strings ready for rendering.
  */
-std::vector<std::string> NavegationView::get_text_contents(
+std::vector<std::string> NavigationView::get_text_contents(
     fs::path file_path, const std::size_t width_, const std::size_t total_lines) {
     std::vector<std::string> contents;
     std::ifstream file(file_path);
@@ -205,7 +205,7 @@ std::vector<std::string> NavegationView::get_text_contents(
  * @param total_lines Number of lines to display.
  * @return Vector of formatted strings for this column.
  */
-std::vector<std::string> NavegationView::preprocess_contents(
+std::vector<std::string> NavigationView::preprocess_contents(
     const std::shared_ptr<Buffer> buffer, 
     const std::size_t pos, 
     bool has_selected_dir,
@@ -264,19 +264,19 @@ std::vector<std::string> NavegationView::preprocess_contents(
  * @brief Adds a header section to the output display.
  * @param contents_to_display Output vector where header lines are appended.
  */
-void NavegationView::add_header(std::vector<std::string>& contents_to_display) {
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_HEADER, NavegationView::width));
-    contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
+void NavigationView::add_header(std::vector<std::string>& contents_to_display) {
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_HEADER, NavigationView::width));
+    contents_to_display.emplace_back(std::string(NavigationView::width, SPACE));
 }
 
 /**
  * @brief Adds a footer section to the output display.
  * @param contents_to_display Output vector where footer lines are appended.
  */
-void NavegationView::add_footer(std::vector<std::string>& contents_to_display) {
-    contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER1, NavegationView::width));
-    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER2, NavegationView::width));
+void NavigationView::add_footer(std::vector<std::string>& contents_to_display) {
+    contents_to_display.emplace_back(std::string(NavigationView::width, SPACE));
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER1, NavigationView::width));
+    contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER2, NavigationView::width));
 }
 
 /**
@@ -286,7 +286,7 @@ void NavegationView::add_footer(std::vector<std::string>& contents_to_display) {
  * @param total_lines Number of lines to display.
  * @return Vector of combined display lines.
  */
-std::vector<std::string> NavegationView::prepare_contents(
+std::vector<std::string> NavigationView::prepare_contents(
     const std::vector<std::string>& left_contents, 
     const std::vector<std::string>& right_contents, 
     const std::size_t total_lines) {
@@ -313,7 +313,7 @@ std::vector<std::string> NavegationView::prepare_contents(
  * @param total_lines Number of lines to display.
  * @return Vector of combined display lines.
  */
-std::vector<std::string> NavegationView::prepare_contents(
+std::vector<std::string> NavigationView::prepare_contents(
     const std::vector<std::string>& left_contents, 
     const std::vector<std::string>& middle_contents,
     const std::vector<std::string>& right_contents, 
@@ -346,7 +346,7 @@ std::vector<std::string> NavegationView::prepare_contents(
  * @param current_pos Index of the selected entry in left buffer.
  * @param current_path Path of the current directory.
  */
-void NavegationView::prepare_two_window_display(
+void NavigationView::prepare_two_window_display(
     const std::shared_ptr<Buffer> left_buffer,
     const std::shared_ptr<Buffer> right_buffer, 
     const std::size_t current_pos, 
@@ -384,7 +384,7 @@ void NavegationView::prepare_two_window_display(
  * @param left_buffer Parent buffer.
  * @param parent_pos Index of selected entry in parent buffer.
  */
-void NavegationView::prepare_display_three_windows(
+void NavigationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer,
     const std::size_t parent_pos) {
     
@@ -425,7 +425,7 @@ void NavegationView::prepare_display_three_windows(
  * @param current_pos Index of selected file in current buffer.
  * @param current_path Path of the current directory.
  */
-void NavegationView::prepare_display_three_windows(
+void NavigationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer, 
     const std::shared_ptr<Buffer> middle_buffer, 
     const std::size_t parent_pos, 
@@ -454,7 +454,7 @@ void NavegationView::prepare_display_three_windows(
  * @param parent_pos Index of selection in parent buffer.
  * @param current_pos Index of selection in current buffer.
  */
-void NavegationView::prepare_display_three_windows(
+void NavigationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer, 
     const std::shared_ptr<Buffer> middle_buffer, 
     const std::shared_ptr<Buffer> right_buffer, 
