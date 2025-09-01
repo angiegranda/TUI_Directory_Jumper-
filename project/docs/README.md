@@ -98,12 +98,11 @@ Suppose the current timestamp is T, p is a path and t₁, …, tₖ are the time
 
 The score is:
 
-\f[
-p_{\text{score}} = \sum_{i=t_{1}}^{t_{k}} \lambda^{\,T - i}
-\f]
+![Path Score formula](path_score_formula.png)
 
+Clearly, the most recent visits will add more value to the score, past visits contribute less but constant visits will also give relevance to frequent paths. After calculating the scores of the paths, we sort them by descendent order. 
 
-Clearly, the most recent visits will add more value to the score, past visits contribute less but constant visits will also give relevance to frequent paths. After calculating the scores of the paths, we sort them by descendent order. $T$ will be increased only when a path is selected and hence we update/create a PathInfo instance for that path, insert time $T$ into the PathInfo visits list and then save this information into the quick_access.csv file.  
+Once a path is selected, time T is inserted into the visits vector of that path, T+1 is the updated time and this data is saved into the quick_access.csv file. 
 
 The format of quick_access.csv is:  
 Line 1: Previous time stamp starting by 0. 
