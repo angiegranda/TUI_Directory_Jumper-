@@ -21,6 +21,7 @@
  * - Encapsulation of the vectors containing the directories and files by returning constant 
  * references so it is guaranteed that the vectors will not change the contents during the execution of the program.
  */
+
 class Buffer {
 
     private:

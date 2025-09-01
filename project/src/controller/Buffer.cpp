@@ -7,7 +7,7 @@
 /**
  * @brief Constructor initialize its member by calling `fill_buffer` function.
  * @param path is a filesystem::path instance. 
- * @see fill_buffe
+ * @see fill_buffer
  */
 Buffer::Buffer(const fs::path& path) { fill_buffer(path); } 
 
