@@ -79,7 +79,7 @@ bool Controller::handle_navegation(char key) {
             m_explorer.move_backward();
             break;
         case 'l': // right
-            m_explorer.move_foward();
+            m_explorer.move_forward();
             break;
         case 'j': // down
             m_explorer.move_down();

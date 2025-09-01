@@ -61,7 +61,7 @@ public:
     fs::path get_curr_displayed_dir() const;
     std::size_t get_curr_pos() const; 
 
-    void move_foward(); 
+    void move_forward(); 
     void move_backward();
     void move_down();
     void move_up();

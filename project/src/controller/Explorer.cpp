@@ -131,7 +131,7 @@ std::size_t Explorer::get_curr_pos() const {
  * resets the cursor position, and prepares the next child buffer.
  * It does nothing if the current selection is a file, or if there are no child entries.
  */
-void Explorer::move_foward() {
+void Explorer::move_forward() {
     if  (m_curr_type == DOC_TYPE::FILE_ENTRY || m_child_buffer == nullptr ||
         (m_child_buffer != nullptr && 
         m_child_buffer->get_files().size() + m_child_buffer->get_directories().size() == 0)) {
