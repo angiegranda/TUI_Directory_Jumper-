@@ -25,6 +25,8 @@
  * - Querying and updating terminal size.
  * - Setting custom resize handler for Windows.
  * - Starting/stopping monitoring threads for Windows terminal resize events.
+ * @note On Windows, it uses `conio.h`, `windows.h`, and a custom `WindowsResizeMonitor`.
+ * @note On UNIX-like systems, it uses `termios`, `ioctl`, and `SIGWINCH` signals.
  * @see TerminalWriter
  * @see WindowsResizeMonitor
  */
@@ -54,7 +56,6 @@ public:
     static void clean_window();
     static void start_resize_monitor();
     static void finish();
-    static void clear_command();
 };
 
 #endif 

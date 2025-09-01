@@ -1,4 +1,3 @@
-// 
 #include "UI.h"
 #ifdef _WIN32
     #include <conio.h> // _getch()
@@ -12,14 +11,32 @@
 #endif 
 
 std::function<void()> UI::window_resize_handle;
+/**
+ * @brief Terminal stream through special files. They depend on the operative system.
+ */
 TerminalWriter UI::ts;
 #ifndef _WIN32
+/**
+ * @brief It stores terminal attributes for Mac/Linux
+ */
 struct termios UI::ot;
 #else
 WindowsResizeMonitor UI::wrm;
 #endif
 
 
+
+/**
+ * @brief Initialize the terminal for extracting input mode and stream .
+ * @details
+ * On Mac/Linux:
+ * - Verifies if input is from a TTY.
+ * - Disables canonical mode and echoing.
+ * - Saves original terminal attributes.
+ * On Windows:
+ * - No setup needed
+ * @return true if initialization succeeded, false otherwise.
+ */
 bool UI::init() {
 #ifdef _WIN32
     return true;
@@ -35,17 +52,29 @@ bool UI::init() {
 #endif
 }
 
+/**
+ * @brief Set a handler for terminal window resize events.
+ * @param handle_window_resize Function to be called when terminal size changes.
+ * On Windows:
+ * - Starts a background resize monitor.
+ * On UNIX:
+ * - Registers a SIGWINCH signal handler.
+ */
 void UI::set_window_resize_handler(std::function<void()> handle_window_resize) {
     window_resize_handle = handle_window_resize;
 #ifdef _WIN32
     wrm.start();
 #else
-    // SIGWINCH is a signal sent when the terminal/window changes size
-    // window_resize_handler will get called when that happens
     std::signal(SIGWINCH, window_resize_handler);
 #endif 
 }
 
+/**
+ * @brief Disable the terminal resize handler.
+ * @details
+ * On Windows:
+ * - Stops the resize monitor.
+ */
 void UI::deactivate_window_resize_handler() {
 #ifdef _WIN32
     wrm.stop();
@@ -53,6 +82,15 @@ void UI::deactivate_window_resize_handler() {
     window_resize_handle = nullptr;
 }
 
+/**
+ * @brief Read a single character from terminal input.
+ * @details
+ * On Windows:
+ * - Uses `_getch()` 
+ * On UNIX:
+ * - Uses `getchar()`
+ * @return ASCII code of the character read.
+ */
 int UI::readchar() {
 #ifdef _WIN32
     return _getch(); 
@@ -62,6 +100,15 @@ int UI::readchar() {
 #endif 
 }
 
+/**
+ * @brief Get the current terminal window size.
+ * @details
+ * On Windows:
+ * - Uses constants `WINDOWS_TERMINAL_WIDTH` and `WINDOWS_TERMINAL_HEIGHT` 
+ * that can be modified in TerminalConstants.h
+ * @return std::tuple<int,int> containing {columns, rows}.
+ * @see TerminalConstants.h
+ */
 std::tuple<int,int> UI::get_terminal_size() {
 #ifdef _WIN32
     return {WINDOWS_TERMINAL_WIDTH, WINDOWS_TERMINAL_HEIGHT};
@@ -72,6 +119,14 @@ std::tuple<int,int> UI::get_terminal_size() {
 #endif
 }
 
+
+/**
+ * @brief Resize event handler.
+ * @details
+ * - On Windows: Invokes the registered `window_resize_handle()`.
+ * - On UNIX: Invokes the registered `window_resize_handle(int)`.
+ * @param sig Signal number, it is ignored.
+ */
 #ifdef _WIN32
 void UI::window_resize_handler() {
     if (window_resize_handle) {
@@ -86,6 +141,11 @@ void UI::window_resize_handler([[maybe_unused]]int sig) {
 }
 #endif
 
+/**
+ * @brief Static function that takes a vector of strings and uses the special
+ * file stream to print in the terminal.
+ * @param window_info Vector of strings, each representing a line of output.
+ */
 void UI::render_window(std::vector<std::string> window_info) {
     UI::ts.clear_app_output();
     for (auto&& line : window_info) {
@@ -94,18 +154,22 @@ void UI::render_window(std::vector<std::string> window_info) {
     ts.flush();
 }
 
+/**
+ * @brief Clear the terminal output.
+ */
 void UI::clean_window() {
     UI::ts.clear_app_output();
 }
 
+
+/**
+ * @brief Restore the terminal to its original state.
+ * @details
+ * On UNIX:
+ * - Restores saved terminal attributes: `ICANON`, `ECHO`.
+ */
 void UI::finish() {
 #ifndef _WIN32
     tcsetattr(STDIN_FILENO, TCSANOW, &UI::ot);
 #endif
-}
-
-void UI::clear_command() {
-    UI::ts.move_cursor_up(1);
-    UI::ts.erase_line();
-    UI::ts.flush();
 }

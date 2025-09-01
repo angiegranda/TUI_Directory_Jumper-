@@ -18,7 +18,7 @@
  * @class NavigationView
  * @brief Process the contents of buffers and text files for rendering in the UI.
  * @details
- * - Based on the state of the smart shared pointers to buffer it will handle the how many columns to display 
+ * - Based on the state of the smart shared pointers of buffer it will handle the how many columns to display 
  * and the information in each column.
  * - If the currently selected document is a file, the class will attempt to read it.
  *   Depending on the result, it will display:
