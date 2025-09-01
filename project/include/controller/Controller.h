@@ -54,7 +54,7 @@ private:
     bool init();
     void program_loop();
     void finish();
-    void on_window_resize();
+    //void on_window_resize();
 
     bool handle_navegation(char key);
     bool handle_quickaccess(char key);

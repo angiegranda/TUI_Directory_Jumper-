@@ -16,15 +16,15 @@ enum class DOC_TYPE { DIRECTORY, FILE_ENTRY };
 
 /**
  * @class Explorer
- * @brief  Manages navigation state for a given filesystem path and pa
+ * @brief  Manages navigation state for a given filesystem path
  * @details
  * - It starts by receiving initial path and creates a shared pointer
- * to a Buffer **current buffer** containing that path directories and files.
+ * to **current buffer** containing that path directories and files.
  * - It keeps track of:
- *      - **Parent buffer**: one directory above, or `nullptr` if at root.
+ *      - **Parent buffer**: one directory above, or `nullptr` if **current buffer** is the root.
  *      - **Child buffer**: the currently selected subdirectory or file, or `nullptr` if none.
- * - Controls the document on the **current buffer** that the user is visualizing at the moment by 
- * setting the DOC_TYPE enum class it currently is.
+ * - Keeps track of the document on the **current buffer** taht the cursor is pointing to by updating a 
+ * std::size position value and sets DOC_TYPE enum class acording to the current document type.
  * - Allows interactive file system traversal by moves forward ~ backward ~ up ~ down. 
  * @see Buffer
  */
