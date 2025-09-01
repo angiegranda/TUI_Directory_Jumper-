@@ -89,9 +89,9 @@ The architecture pattern is **Model-View-Controller (MVC)** where:
 This keeps presentation logic separate and makes the code easier to maintain and test.
 
 The **src/** contains:
-- src/Main.cpp: creates an instance of controllers and runs it. The program will inmediatly stop if one of the required files to be initialized (read/write) throws an exception.
-- src/controller/: contains core logic classes. Buffer and Explorer classes handle navigation.
-- src/ui/: UI-related classes (NavigationView, QuickAccessView, UI, TerminalWriter, WindowsResizeMonitor). TerminalWriter uses ANSI escape codes which are enabled and works for Windows (+10). If the version would be older then this would be the only file that would need to be modified. WindowsResizeMonitor runs a safe background thread that checks every 200 ms if the window was resized, and updates the display accordingly.
+- **src/Main.cpp**: creates an instance of controllers and runs it. The program will inmediatly stop if one of the required files to be initialized (read/write) throws an exception.
+- **src/controller/**: contains core logic classes. Buffer and Explorer classes handle navigation.
+- **src/ui/**: UI-related classes (NavigationView, QuickAccessView, UI, TerminalWriter, WindowsResizeMonitor). TerminalWriter uses ANSI escape codes which are enabled and works for Windows (+10). If the version would be older then this would be the only file that would need to be modified. WindowsResizeMonitor runs a safe background thread that checks every 200 ms if the window was resized, and updates the display accordingly.
 
 This project uses [Doxygen](https://www.doxygen.nl) to generate API documentation.
 
@@ -99,7 +99,7 @@ This project uses [Doxygen](https://www.doxygen.nl) to generate API documentatio
    - On Windows: https://www.doxygen.nl/download.html
    - On Mac/Linux: use your package manager, e.g., `sudo apt install doxygen` or `brew install doxygen`.
 2. In order to visualize the dependency graph install:
-    - On Mac/Linux: brew install graphviz 
+    - On Mac/Linux: `brew install graphviz` 
 
 3. To generate the documentation, run:
 ```doxygen Doxyfile```
