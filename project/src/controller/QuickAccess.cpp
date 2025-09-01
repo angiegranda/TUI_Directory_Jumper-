@@ -7,6 +7,18 @@
 #include <exception>
 #include <iostream>
 
+/**
+ * @brief Sets up the quick access file path.
+ * @details
+ * - Reads the base directory from environment variables depending on the platform.
+ *   - POSIX: tries GLOBAL_ENV_PATH_POSIX1, then GLOBAL_ENV_PATH_POSIX2.
+ *   - Windows: uses GLOBAL_ENV_PATH_WIND.
+ * - Creates the project folder inside that base directory if it doesn't exist.
+ * - Defines the path to the quick access file and marks the state as valid.
+ * - If any exception occurs state is set to false. Controller checks the state at initialization, 
+ * if false then the program stops. 
+ * @see Constants.h
+ */
 void QuickAccess::set_path() {
     const char* dir;
     try {
@@ -28,6 +40,17 @@ void QuickAccess::set_path() {
     }
 }
 
+/**
+ * @brief Parses a line of csv quick access file into a PathInfo object.
+ * @details
+ * - The first entry in the line is the path.
+ * - Remaining entries are visit timestamps.
+ * - Each visit contributes to the score using an exponential decay factor `LAMBDA`.
+ * @param data A CSV-formatted string containing path and visit timestamps.
+ * @return A populated PathInfo instance with path, visits, and computed score.
+ * @see PathInfo
+ * @see Constants.h
+ */
 PathInfo QuickAccess::create_pathinfo(const std::string& data) {
     PathInfo p;
     std::stringstream ss(data);
@@ -43,6 +66,12 @@ PathInfo QuickAccess::create_pathinfo(const std::string& data) {
     return p;
 }
 
+/**
+ * @brief Opens the quick access file.
+ * @details
+ * - If the file does not exist, it is created with a default line `0` which indicates the current timestamp.
+ * @return A std::fstream object for the quick access file.
+ */
 std::fstream QuickAccess::open_file() {
     std::fstream file(m_file_path);
     if (!file.is_open()) {
@@ -54,6 +83,18 @@ std::fstream QuickAccess::open_file() {
     return file;
 }
 
+/**
+ * @brief Constructs a QuickAccess object and loads data.
+ * @details
+ * - Calls @ref set_path to initialize environment and file path.
+ * - If state is invalid, initialization stops.
+ * - Otherwise:
+ *   - Opens the quick access file.
+ *   - Reads previous timestamp from the first line.
+ *   - Parses subsequent lines into PathInfo objects with @ref create_pathinfo.
+ *   - Sorts entries in descending order of score.
+ * - If the file is corrupted or has an invalid format, data is reset and total visits set to 0.
+ */
 QuickAccess::QuickAccess() {
     set_path();
     if (!m_state) {return; }
@@ -84,10 +125,20 @@ QuickAccess::QuickAccess() {
     file.close();
 }
 
+/**
+ * @brief Returns the current state which is true if initialized successfully, false otherwise.
+ */
 bool QuickAccess::get_state() {
     return m_state;
 }
 
+/**
+ * @brief Saves the current QuickAccess data to the file.
+ * @details
+ * - Overwrites the quick access file.
+ * - First line contains total visits.
+ * - Each subsequent line contains a path followed by its visit timestamps CSV formatted.
+ */
 void QuickAccess::save_data() {
     std::ofstream file(m_file_path, std::ios::out | std::ios::trunc);
     file << m_total_visits << NEW_LINE;

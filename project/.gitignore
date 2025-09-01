@@ -3,3 +3,5 @@
 compile_commands.json
 .DS_Store
 ../.DS_Store
+/docs/html/
+/docs/latex/

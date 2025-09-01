@@ -3,9 +3,31 @@
 #include <cstring>
 #include <sstream> // ostringstream 
 
+/**
+ * @brief Static terminal width parameter changed every time @ref render_window is called. 
+ */
 std::size_t NavegationView::width;
+/**
+ * @brief Static terminal height parameter changed every time @ref render_window is called. 
+ */
 std::size_t NavegationView::height;
 
+/**
+ * @brief Renders the navigation window with parent, current, and child buffers.
+ * @details
+ * - Gets the terminal size.
+ * - Chooses a display layout depending on which buffers are available:
+ *   - Empty middle buffer → current path is empty, shows an error message. 
+ *   - No left buffer → current path is root directory and parent is nullptr, show two windows for current and child buffers.
+ *   - No right buffer → child buffer is nullptr because the current visualized document is a file. Show parent + current + file preview.
+ *   - Otherwise → show three directory windows (parent, current, child).
+ * @param left_contents Parent buffer, may be null if at root.
+ * @param middle_contents Current buffer, cannot be null but it can be empty.
+ * @param right_contents Child buffer, may be null if current selection is a file.
+ * @param parent_pos Current selection index in the parent buffer.
+ * @param current_pos Current selection index in the current buffer.
+ * @param current_path Path to the current directory.
+ */
 void NavegationView::render_window(
     const std::shared_ptr<Buffer> left_contents,
     const std::shared_ptr<Buffer> middle_contents,
@@ -20,41 +42,34 @@ void NavegationView::render_window(
 
     if ((middle_contents->get_directories().size() + 
         middle_contents->get_files().size()) == 0) { 
-        /*
-        The app was launched from an empty directory, 
-        error message in the middle so the user moves back 
-        */
+        // The app was launched from an empty directory, error message in the middle so the user moves back
         NavegationView::prepare_display_three_windows(
         left_contents, parent_pos);
     }
 
     else if (left_contents == nullptr) { 
-        /*
-        Current directory is root, manages also the case that there exist a file in the root
-        */
+        // Current directory is root, manages also the case that there exist a file in the rooT
         NavegationView::prepare_two_window_display(
         middle_contents, right_contents, current_pos, current_path);
     }
     else if (right_contents == nullptr) {
-        /*
-        Display data from the delected file at the current directory 
-        */
+        // Display data from the delected file at the current directory 
         NavegationView::prepare_display_three_windows( 
         left_contents, middle_contents, parent_pos, current_pos, current_path);
     }
     else { 
-        /*
-        Parent, current and child (next) are all directories
-        */
+        //Parent, current and child (next) are all directories
         NavegationView::prepare_display_three_windows(
         left_contents, middle_contents, right_contents, parent_pos, current_pos);
     }
 }
 
-
-// ----------- PRIVATE FUNCTIONS ------------------------
-
-
+/**
+ * @brief Builds a centered header or footer line.
+ * @param text The text to display.
+ * @param width_ Width of the line.
+ * @return A formatted string padded with spaces and ANSI escape codes.
+ */
 std::string NavegationView::get_header_or_footer(const char* text, const std::size_t width_) {
     std::size_t remaning_spaces = width_ > std::strlen(text) ? width_ - std::strlen(text) : 0;
     std::size_t corner_spaces = remaning_spaces / 2;
@@ -70,6 +85,11 @@ std::string NavegationView::get_header_or_footer(const char* text, const std::si
     return line;
 }
 
+/**
+ * @brief Computes layout metrics for rendering.
+ * @param column_number Number of columns to display, either 2 or 3.
+ * @return A tuple of (usable_lines, base_width, remainder).
+ */
 Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
     std::size_t total_usable_lines = std::max<std::size_t>(NAVIGATION_MIN_LINES - NAVIGATION_RESERVED_LINES, NavegationView::height - NAVIGATION_RESERVED_LINES);
     std::size_t total_pad = column_number * BETWEEN_COLUMNS_SPACE; //
@@ -81,6 +101,17 @@ Metrics_Tuple NavegationView::get_metrics(const std::size_t column_number) {
     return std::make_tuple(total_usable_lines, base_width, remainder);
 }
 
+/**
+ * @brief Cleans and formats file contents for display.
+ * @details
+ * - Replaces common non-printable characters with spaces.
+ * - Truncates or pads lines to fit column width.
+ * - If too many non-printables are detected given some threshold `BINARY_HEURISTIC`, marks file as binary.
+ * - Pads output with empty lines to match total display lines.
+ * @param contents Lines of file content to process.
+ * @param width_ Column width.
+ * @param total_lines Number of lines to fill.
+ */
 void NavegationView::process_text(std::vector<std::string>& contents, 
     const std::size_t width_, const std::size_t total_lines) {
 
@@ -121,6 +152,17 @@ void NavegationView::process_text(std::vector<std::string>& contents,
     }
 }
 
+/**
+ * @brief Reads file contents and prepares them for display.
+ * @details
+ * - Opens file at given path, reads up to total_lines.
+ * - Cleans lines via @ref process_text.
+ * - If file cannot be opened, shows error message instead.
+ * @param file_path Path of the file to read.
+ * @param width_ Column width.
+ * @param total_lines Number of lines to display.
+ * @return Vector of processed strings ready for rendering.
+ */
 std::vector<std::string> NavegationView::get_text_contents(
     fs::path file_path, const std::size_t width_, const std::size_t total_lines) {
     std::vector<std::string> contents;
@@ -149,6 +191,20 @@ std::vector<std::string> NavegationView::get_text_contents(
     return contents;
 }
 
+/**
+ * @brief Prepares a buffer’s directories and files for display in a column.
+ * @details
+ * - Renders directories first, then files.
+ * - Highlights the selected entry if called for parent-current buffer, for child is ignored.
+ * - Truncates names that exceed column width, appending "…".
+ * - Pads the result to total_lines.
+ * @param buffer Buffer to render (directories + files).
+ * @param pos Index of the currently selected entry.
+ * @param has_selected_dir Whether the highlighted entry should be marked.
+ * @param col_width Width of the column.
+ * @param total_lines Number of lines to display.
+ * @return Vector of formatted strings for this column.
+ */
 std::vector<std::string> NavegationView::preprocess_contents(
     const std::shared_ptr<Buffer> buffer, 
     const std::size_t pos, 
@@ -204,17 +260,32 @@ std::vector<std::string> NavegationView::preprocess_contents(
     return processed_output;
 }
 
+/**
+ * @brief Adds a header section to the output display.
+ * @param contents_to_display Output vector where header lines are appended.
+ */
 void NavegationView::add_header(std::vector<std::string>& contents_to_display) {
     contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_HEADER, NavegationView::width));
     contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
 }
 
+/**
+ * @brief Adds a footer section to the output display.
+ * @param contents_to_display Output vector where footer lines are appended.
+ */
 void NavegationView::add_footer(std::vector<std::string>& contents_to_display) {
     contents_to_display.emplace_back(std::string(NavegationView::width, SPACE));
     contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER1, NavegationView::width));
     contents_to_display.emplace_back(get_header_or_footer(NAVIGATION_FOOTER2, NavegationView::width));
 }
 
+/**
+ * @brief Prepares display contents for a two-column layout.
+ * @param left_contents Left column (current buffer directories/files preprocessed).
+ * @param right_contents Right column (child buffer directories/files preprocessed or file preview).
+ * @param total_lines Number of lines to display.
+ * @return Vector of combined display lines.
+ */
 std::vector<std::string> NavegationView::prepare_contents(
     const std::vector<std::string>& left_contents, 
     const std::vector<std::string>& right_contents, 
@@ -234,6 +305,14 @@ std::vector<std::string> NavegationView::prepare_contents(
     return contents_to_display;
 }
 
+/**
+ * @brief Prepares display contents for a three-column layout.
+ * @param left_contents Left column (parent buffer directories/files preprocessed).
+ * @param middle_contents Middle column (current buffer directories/files preprocessed).
+ * @param right_contents Right column (child buffer preprocessed or file preview).
+ * @param total_lines Number of lines to display.
+ * @return Vector of combined display lines.
+ */
 std::vector<std::string> NavegationView::prepare_contents(
     const std::vector<std::string>& left_contents, 
     const std::vector<std::string>& middle_contents,
@@ -257,13 +336,23 @@ std::vector<std::string> NavegationView::prepare_contents(
     return contents_to_display;
 }
 
+/**
+ * @brief Renders a two-window display.
+ * @details
+ * - Used when at current buffer points at the contents of the root. 
+ * - Right window shows either child directories or file preview.
+ * @param left_buffer Left buffer (current directory contents).
+ * @param right_buffer Right buffer, nullptr if the selected entry with index `current_pos` is a file.
+ * @param current_pos Index of the selected entry in left buffer.
+ * @param current_path Path of the current directory.
+ */
 void NavegationView::prepare_two_window_display(
     const std::shared_ptr<Buffer> left_buffer,
     const std::shared_ptr<Buffer> right_buffer, 
     const std::size_t current_pos, 
     const fs::path& current_path) {
     bool contains_text = false;
-    if (right_buffer == nullptr) {  // middle is root and right is file 
+    if (right_buffer == nullptr) {  
         contains_text = true;
     }
     auto [total_lines, col_width, reminder] = get_metrics(2);
@@ -286,6 +375,15 @@ void NavegationView::prepare_two_window_display(
     UI::render_window(prepare_contents(left_contents, right_contents, total_lines));
 }
 
+/**
+ * @brief Renders three windows when the middle buffer is empty.
+ * @details
+ * - Shows parent contents on the left.
+ * - Displays an error message in the middle column.
+ * - Shows an empty right column.
+ * @param left_buffer Parent buffer.
+ * @param parent_pos Index of selected entry in parent buffer.
+ */
 void NavegationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer,
     const std::size_t parent_pos) {
@@ -316,6 +414,17 @@ void NavegationView::prepare_display_three_windows(
     UI::render_window(prepare_contents(left_contents, middle_contents, right_contents, total_lines));
 }
 
+/**
+ * @brief Renders three windows when displaying a file.
+ * @details
+ * - This function is selected when the child buffer is a nullptr.
+ * - The path to the selected entry file is computed and with @ref get_text_contents its contents are prepared for being displayed.
+ * @param left_buffer Parent buffer.
+ * @param middle_buffer Current buffer.
+ * @param parent_pos Index of selected entry in parent buffer.
+ * @param current_pos Index of selected file in current buffer.
+ * @param current_path Path of the current directory.
+ */
 void NavegationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer, 
     const std::shared_ptr<Buffer> middle_buffer, 
@@ -335,6 +444,16 @@ void NavegationView::prepare_display_three_windows(
     UI::render_window(prepare_contents(left_contents, middle_contents, text, total_lines));
 }
 
+/**
+ * @brief Renders three windows with parent, current, and child buffers.
+ * @details
+ * - Used when all three buffers are available.
+ * @param left_buffer Parent buffer.
+ * @param middle_buffer Current buffer.
+ * @param right_buffer Child buffer.
+ * @param parent_pos Index of selection in parent buffer.
+ * @param current_pos Index of selection in current buffer.
+ */
 void NavegationView::prepare_display_three_windows(
     const std::shared_ptr<Buffer> left_buffer, 
     const std::shared_ptr<Buffer> middle_buffer, 

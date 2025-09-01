@@ -5,7 +5,18 @@
 #include <stack> 
 #include <cstring> // strlen
 
-// UPDATED
+/**
+ * @brief Formats a filesystem path to fit within a given width.
+ * @details
+ * - If the path length is shorter than the width, it is padded with spaces.
+ * - If the path is longer, leading directories are truncated and replaced with
+ *   a shortcut marker `DIR_SHORTCUT`, keeping only the trailing components.
+ * - Always returns a string exactly `width` characters long.
+ * @param path Filesystem path.
+ * @param width Maximum width of the rendered string.
+ * @return Formatted path string with truncation and padding applied.
+ * @see Constants.h
+ */
 std::string QuickAccessView::path_length_constraints(const std::string& path, const std::size_t width) {
     std::string line;
     line.reserve(width);
@@ -37,6 +48,13 @@ std::string QuickAccessView::path_length_constraints(const std::string& path, co
     return line;
 }
 
+/**
+ * @brief Builds a centered header or footer line for the quick access view.
+ * @param text Text to display in the header/footer.
+ * @param width Total width of the line.
+ * @return A formatted string with padding and ANSI escape codes.
+ * @see Constants.h
+ */
 std::string QuickAccessView::get_header_or_footer(const char* text, const std::size_t width) {
     std::size_t remaining_spaces = width > std::strlen(text) ? width - std::strlen(text) : 0;
     std::size_t corners_spaces = remaining_spaces / 2;
@@ -49,6 +67,18 @@ std::string QuickAccessView::get_header_or_footer(const char* text, const std::s
     return line;
 }
 
+/**
+ * @brief Renders the quick access window.
+ * @details
+ * - Gets the current terminal size.
+ * - Displays a header, followed by a list of paths, then a footer.
+ * - Each path is formatted with @ref path_length_constraints to fit the width.
+ * - Highlights the entry at the given cursor position `pos`.
+ * - Pads with empty lines to fill the terminal height.
+ * @param paths List of paths with metadata PathInfo.
+ * @param pos Index of the currently selected path.
+ * @see PathInfo
+ */
 void QuickAccessView::render_window(const std::vector<PathInfo>& paths, std::size_t pos)  {
     std::vector<std::string> contents_to_display;
     auto [width_, height_] = UI::get_terminal_size();

@@ -1,3 +1,11 @@
+/**
+ * @file NavigationView.h
+ * @author Angie Granda 
+ * @brief Prepares and formats navigation data for terminal display.
+ * @date 2025-08-31
+ * @copyright Copyright (c) 2025
+ * 
+ */
 #ifndef _CFD_NAVIGATION_VIEW_H_
 #define _CFD_NAVIGATION_VIEW_H_
 
@@ -6,6 +14,24 @@
 #include "UI.h"
 #include "Explorer.h"
 
+/**
+ * @class NavegationView
+ * @brief Process the contents of buffers and text files for rendering in the UI.
+ * @details
+ * - Based on the state of the smart shared pointers to buffer it will handle the how many columns to display 
+ * and the information in each column.
+ * - If the currently selected document is a file, the class will attempt to read it.
+ *   Depending on the result, it will display:
+ *     - The beginning of the file’s content if readable text is present.
+ *     - A message `[Empty File]` if the file is empty.
+ *     - A message `[Binary File]` if the file contains mostly non-printable characters.
+ *     - An error message if the file could not be opened or read.
+ * - Prepares the headers, row contents and footers.
+ * - Delegates final rendering to the static `UI` class once formatting is complete.
+ * @see Buffer
+ * @see UI
+ * @see Constants.h
+ */
 
 class NavegationView {
 

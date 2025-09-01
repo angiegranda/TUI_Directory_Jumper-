@@ -64,17 +64,7 @@ int UI::readchar() {
 
 std::tuple<int,int> UI::get_terminal_size() {
 #ifdef _WIN32
-    AttachConsole(ATTACH_PARENT_PROCESS); 
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole == INVALID_HANDLE_VALUE) return { 60, 25 };
-
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-        return { 90, 30};
-    }
-    int cols = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    return { cols, rows };
+    return {WINDOWS_TERMINAL_WIDTH, WINDOWS_TERMINAL_HEIGHT};
 #else 
     struct winsize w{};
     ioctl(STDIN_FILENO, TIOCGWINSZ, &w);

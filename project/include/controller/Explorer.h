@@ -1,3 +1,10 @@
+/**
+ * @file Explorer.h
+ * @author Angie Granda
+ * @brief This file contains Explorer class that allows interactive file system traversal.
+ * @date 2025-08-30
+ * @copyright Copyright (c) 2025
+ */
 #ifndef _CFD_EXPLORER_H_
 #define _CFD_EXPLORER_H_
 #include "Buffer.h"
@@ -7,7 +14,20 @@
 
 enum class DOC_TYPE { DIRECTORY, FILE_ENTRY };
 
-// TODO: std::bad_alloc
+/**
+ * @class Explorer
+ * @brief  Manages navigation state for a given filesystem path and pa
+ * @details
+ * - It starts by receiving initial path and creates a shared pointer
+ * to a Buffer **current buffer** containing that path directories and files.
+ * - It keeps track of:
+ *      - **Parent buffer**: one directory above, or `nullptr` if at root.
+ *      - **Child buffer**: the currently selected subdirectory or file, or `nullptr` if none.
+ * - Controls the document on the **current buffer** that the user is visualizing at the moment by 
+ * setting the DOC_TYPE enum class it currently is.
+ * - Allows interactive file system traversal by moves forward ~ backward ~ up ~ down. 
+ * @see Buffer
+ */
 
 class Explorer {
 
@@ -42,8 +62,7 @@ public:
     std::size_t get_curr_pos() const; 
 
     void move_foward(); 
-    void move_backward(); 
-    //void update_child_buffer(const std::string& selected_dir);
+    void move_backward();
     void move_down();
     void move_up();
 

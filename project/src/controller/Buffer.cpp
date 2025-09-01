@@ -4,8 +4,20 @@
 #include <algorithm>
 #include <fstream>
 
+/**
+ * @brief Constructor initialize its member by calling `fill_buffer` function.
+ * @param path is a filesystem::path instance. 
+ * @see fill_buffe
+ */
 Buffer::Buffer(const fs::path& path) { fill_buffer(path); } 
 
+/**
+ * @brief Extracts the directory and file names found in the given path. 
+ * @details 
+ * - If an exception arises then the directories and files vectors are empty. 
+ * - Directories and Files are sorted by names.
+ * @param path is a filesystem::path instance.
+ */
 void Buffer::fill_buffer(const fs::path& path){
     m_directories.clear();
     m_files.clear();

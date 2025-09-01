@@ -1,3 +1,10 @@
+/**
+ * @file TerminalWriter.h
+ * @author Angie Granda
+ * @brief Handles writing to terminal with cross-platform support.
+ * @date 2025-08-30
+ * @copyright Copyright (c) 2025
+ */
 #ifndef _CDF_STREAM_H_
 #define _CDF_STREAM_H_
 
@@ -12,6 +19,15 @@
 #include <windows.h>
 #endif
 
+/**
+ * @class TerminalWriter
+ * @brief Class responsible for writing and updating terminal output.
+ * @details
+ * Handles opening/closing streams and rendering text dynamically, using
+ * ANSI escape sequences where supported. Works on POSIX and Windows (+10)
+ * terminals to simulate in-place updates.
+ */
+
 class TerminalWriter {
 
 private:
@@ -23,7 +39,7 @@ private:
 
 #ifdef _WIN32
     HANDLE m_hConsole = nullptr;
-    void enableAnsiOnWindows();
+    void enable_ansi_on_windows();
 #endif
 
 public:
