@@ -15,10 +15,10 @@
 
 /**
  * @class Buffer
- * @brief Class responsible storing the directories and file names for a given filesystem path.
+ * @brief Resposible for storing the directories and file names for a given filesystem path.
  * @details
  * - Scans a given filesystem path and separates its contents into directories and files.
- * - Encapsulation of the vectors containing the directories and files bu returning constant 
+ * - Encapsulation of the vectors containing the directories and files by returning constant 
  * references so it is guaranteed that the vectors will not change the contents during the execution of the program.
  */
 class Buffer {
