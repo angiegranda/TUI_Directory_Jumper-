@@ -58,7 +58,7 @@ The program starts in Quick Access, which shows paths you’ve visited most ofte
 The actions are:  
 1. [j] Move cursor down and [k] up thorough the top paths by relevance order.  
 2. [c] Switch to Navigation mode to pick a directory manually.  
-3. ['x'] Clear history (start fresh with suggestions).  
+3. [x] Clear history (start fresh with suggestions).  
 3. [s] Select a suggested path.  
 4. [q] Quit – returns you to the directory where you launched the program (doesn’t affect history) 
 
@@ -98,11 +98,11 @@ Suppose the current timestamp is T, p is a path and t₁, …, tₖ are the time
 
 The score is:
 
-![Path Score formula](path_score_formula.png)
+![\f[ p_{\text{score}} = \sum_{i=t_{1}}^{t_{k}} \lambda^{\,T - i} \f]](path_score_formula.png)
 
 Clearly, the most recent visits will add more value to the score, past visits contribute less but constant visits will also give relevance to frequent paths. After calculating the scores of the paths, we sort them by descendent order. 
 
-Once a path is selected, time T is inserted into the visits vector of that path, T+1 is the updated time and this data is saved into the quick_access.csv file. 
+Once a path is selected, time T is inserted into the visits vector of that path, T+1 is the updated time and then this data is saved in quick_access.csv.
 
 The format of quick_access.csv is:  
 Line 1: Previous time stamp starting by 0. 
