@@ -23,7 +23,7 @@ WindowsResizeMonitor::~WindowsResizeMonitor() {
  * - Does nothing if the monitor is already running.
  */
 void WindowsResizeMonitor::start() {
-    std::lock_guard<std::mutex> lock(_mutex); // Thid ensures that only one thread at a time can enter that a time
+    std::lock_guard<std::mutex> lock(_mutex); // This ensures that only one thread at a time can enter that a time
 
     if (_is_running) { return; }
     _is_running = true;

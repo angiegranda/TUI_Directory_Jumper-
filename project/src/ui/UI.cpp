@@ -41,7 +41,7 @@ bool UI::init() {
 #ifdef _WIN32
     return true;
 #else
-    if (!isatty(STDIN_FILENO)) {
+    if (!isatty(STDIN_FILENO)) { // false if input is from a file/pipe, true from the keyboard
         return false;
     }
     tcgetattr(STDIN_FILENO, &UI::ot); 
@@ -106,7 +106,7 @@ int UI::readchar() {
  * On Windows:
  * - Uses constants `WINDOWS_TERMINAL_WIDTH` and `WINDOWS_TERMINAL_HEIGHT` 
  * that can be modified in TerminalConstants.h
- * @return std::tuple<int,int> containing {columns, rows}.
+ * @return std::tuple<int, int> containing {columns, rows}.
  * @see TerminalConstants.h
  */
 std::tuple<int,int> UI::get_terminal_size() {
