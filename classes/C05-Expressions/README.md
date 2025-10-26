@@ -1,1 +1,0 @@
-## Small Assignment C05 - Arithmetic Expressions 1

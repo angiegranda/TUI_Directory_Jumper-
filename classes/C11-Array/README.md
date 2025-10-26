@@ -1,1 +1,0 @@
-## Small Assignment C11 - Flexible Array 2
