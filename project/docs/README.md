@@ -7,7 +7,6 @@ This project is a multiplatform tool that lets you switch directories smoothly f
 ## Prerequisites
 * CMake ≥ 3.29
 * C++20 compiler (g++, clang++, or MSVC)
-* Git (if cloning the repository)
 * Mac/Linux, Windows 10 or older.
 
 ## Building the program 
